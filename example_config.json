@@ -1,0 +1,10 @@
+{
+  "hf": {
+    "sentiment_token": "Bearer XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+    "sentiment_url": "https://api-inference.huggingface.co/models/ProsusAI/finbert"
+  },
+  "proxies": {
+    "http": "socks5://localhost:9150",
+    "https": "socks5://localhost:9150"
+  }
+}
