@@ -3,10 +3,7 @@ from __future__ import annotations
 from typing import TypedDict, Literal, NotRequired
 import requests
 
-from config import load_config, ConfigType
-
-# Configuration from the config file
-config: ConfigType = load_config("./config.json")
+from Config import config
 
 
 class SentimentResponse(TypedDict):

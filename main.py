@@ -1,4 +1,4 @@
-from sentiment import query
+from Sentiment import query
 
 
 def main() -> None:
