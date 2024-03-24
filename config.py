@@ -40,20 +40,11 @@ class ConfigType(TypedDict):
     proxies: ProxiesConfigType
 
 
-def read_json(file_path: str) -> dict:
-    """
-    Reads the given JSON file.
-    :param file_path:
-    :return:
-    """
-    with open(file_path, 'r') as file:
-        return json.load(file)
-
-
 def load_config(path: str) -> ConfigType:
     """
     Reads the given JSON config file.
     :param path: Path to JSON config.
     :return:
     """
-    return read_json(path)
+    with open(path, 'r') as file:
+        return json.load(file)
