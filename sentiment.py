@@ -12,6 +12,11 @@ config: ConfigType = load_config("./config.json")
 class SentimentResponse(TypedDict):
     """
     Class used for type hints of sentiment queries.
+
+
+    score: Probability of the sentiment label [0, 1].
+
+    label: Either negative, neutral, or positive.
     """
     score: int
     label: Literal['negative', 'neutral', 'positive']
@@ -20,6 +25,11 @@ class SentimentResponse(TypedDict):
 class SentimentRequestOptions(TypedDict):
     """
     Class used for type hints of sentiment query options.
+
+
+    use_cache: True to use caching.
+
+    wait_for_model: True to wait for the model if not booted (due to serverless cold starts).
     """
     use_cache: NotRequired[bool]
     wait_for_model: NotRequired[bool]
@@ -28,9 +38,12 @@ class SentimentRequestOptions(TypedDict):
 class SentimentRequest(TypedDict):
     """
     Class used for type hints of sentiment queries.
+
+    inputs: list of queries to the model or a single string query.
+
+    options: HF request options.
     """
     inputs: str | list[str]
-    # By default, both flags set to True
     options: NotRequired[SentimentRequestOptions]
 
 
@@ -44,8 +57,8 @@ def query(payload: SentimentRequest) -> list[list[SentimentResponse]]:
     # Add the options to payload of not present
     if 'options' not in payload:
         payload['options'] = {
-            'use_cache': True,      # Use caching
-            'wait_for_model': True  # Wait for the model if not booted (cold starts)
+            'use_cache': True,
+            'wait_for_model': True
         }
 
     # For documentation of requests consult: https://docs.python-requests.org/en/latest/user/advanced/

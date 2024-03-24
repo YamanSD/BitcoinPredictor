@@ -5,6 +5,11 @@ from typing import TypedDict
 class HfConfigType(TypedDict):
     """
     Class used for type hints of HuggingFace configuration.
+
+
+    sentiment_token: Bearer token for the sentiment query requests.
+
+    sentiment_url: URL to the sentiment model API.
     """
     sentiment_token: str
     sentiment_url: str
@@ -13,6 +18,10 @@ class HfConfigType(TypedDict):
 class ProxiesConfigType(TypedDict):
     """
     Class used for type hints of proxy configuration.
+
+
+    http: HTTP proxy.
+    https: HTTPS proxy.
     """
     http: str
     https: str
@@ -21,6 +30,11 @@ class ProxiesConfigType(TypedDict):
 class ConfigType(TypedDict):
     """
     Class used for type hints of app configuration.
+
+
+    hf: HuggingFace configuration.
+
+    proxies: Proxies for the requests.
     """
     hf: HfConfigType
     proxies: ProxiesConfigType
