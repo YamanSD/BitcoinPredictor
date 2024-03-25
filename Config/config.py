@@ -1,10 +1,15 @@
-import json
+from dataclasses import dataclass
 from typing import TypedDict
 
+import json
 
-class HfConfigType(TypedDict):
+from Utils import convert_to_dataclass
+
+
+@dataclass(frozen=True)
+class HfConfig:
     """
-    Class used for type hints of HuggingFace configuration.
+    Class used for HuggingFace configuration.
 
 
     sentiment_token: Bearer token for the sentiment query requests.
@@ -15,36 +20,48 @@ class HfConfigType(TypedDict):
     sentiment_url: str
 
 
-class ProxiesConfigType(TypedDict):
+class ProxiesConfig(TypedDict):
     """
-    Class used for type hints of proxy configuration.
+    Class used for proxy configuration.
 
 
     http: HTTP proxy.
+
     https: HTTPS proxy.
     """
     http: str
     https: str
 
 
-class ConfigType(TypedDict):
+@dataclass(frozen=True)
+class Config:
     """
-    Class used for type hints of app configuration.
+    Class used for app configuration.
 
 
     hf: HuggingFace configuration.
 
     proxies: Proxies for the requests.
+
+    spider: spider authentication keys.
     """
-    hf: HfConfigType
-    proxies: ProxiesConfigType
+    hf: HfConfig
+    proxies: ProxiesConfig
 
 
-def load_config(path: str) -> ConfigType:
+def load_config(path: str) -> Config:
     """
     Reads the given JSON config file.
     :param path: Path to JSON config.
     :return:
     """
     with open(path, 'r') as file:
-        return json.load(file)
+        data: dict = json.load(file)
+
+    # Convert to ConfigType object
+    hf_config: HfConfig = convert_to_dataclass(HfConfig, data['hf'])
+
+    return convert_to_dataclass(Config, {
+        **data,
+        "hf": hf_config,
+    })

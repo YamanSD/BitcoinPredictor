@@ -9,7 +9,10 @@ cchardet==2.1.7
 certifi==2024.2.2
 cffi==1.16.0
 charset-normalizer==3.3.2
-Cython==3.0.9
+click==8.1.7
+curl_cffi==0.6.2
+dataclasses==0.6
+duckduckgo_search==5.1.0
 elastic-transport==8.12.0
 elasticsearch==8.12.1
 fake-useragent==1.5.1
@@ -18,9 +21,10 @@ geographiclib==2.0
 geopy==2.4.1
 googletransx==2.4.2
 idna==3.6
+lxml==5.1.0
 multidict==6.0.5
 numpy==1.26.4
-pandas==2.2.1
+oauthlib==3.2.2
 pycares==4.4.0
 pycparser==2.21
 PySocks==1.7.1
@@ -28,10 +32,10 @@ python-dateutil==2.9.0.post0
 python-socks==2.4.4
 pytz==2024.1
 requests==2.31.0
+requests-oauthlib==1.4.0
 schedule==1.2.1
 six==1.16.0
 soupsieve==2.5
-twint==2.1.20
 tzdata==2024.1
 urllib3==2.2.1
 yarl==1.9.4

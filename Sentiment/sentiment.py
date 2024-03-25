@@ -1,14 +1,16 @@
 from __future__ import annotations
 
-from typing import TypedDict, Literal, NotRequired
+from dataclasses import dataclass, asdict
+from typing import Literal, Optional
 import requests
 
 from Config import config
 
 
-class SentimentResponse(TypedDict):
+@dataclass(frozen=True)
+class SentimentResponse:
     """
-    Class used for type hints of sentiment queries.
+    Class used for sentiment queries.
 
 
     score: Probability of the sentiment label [0, 1].
@@ -19,29 +21,32 @@ class SentimentResponse(TypedDict):
     label: Literal['negative', 'neutral', 'positive']
 
 
-class SentimentRequestOptions(TypedDict):
+@dataclass(frozen=True)
+class SentimentRequestOptions:
     """
-    Class used for type hints of sentiment query options.
+    Class used for sentiment query options.
 
 
     use_cache: True to use caching.
 
     wait_for_model: True to wait for the model if not booted (due to serverless cold starts).
     """
-    use_cache: NotRequired[bool]
-    wait_for_model: NotRequired[bool]
+    use_cache: Optional[bool]
+    wait_for_model: Optional[bool]
 
 
-class SentimentRequest(TypedDict):
+@dataclass(frozen=True)
+class SentimentRequest:
     """
-    Class used for type hints of sentiment queries.
+    Class used for sentiment queries.
+
 
     inputs: list of queries to the model or a single string query.
 
     options: HF request options.
     """
     inputs: str | list[str]
-    options: NotRequired[SentimentRequestOptions]
+    options: Optional[SentimentRequestOptions] = SentimentRequestOptions(True, True)
 
 
 def query(payload: SentimentRequest) -> list[list[SentimentResponse]]:
@@ -50,23 +55,15 @@ def query(payload: SentimentRequest) -> list[list[SentimentResponse]]:
     :param payload: request to the sentiment model.
     :return:
     """
-
-    # Add the options to payload of not present
-    if 'options' not in payload:
-        payload['options'] = {
-            'use_cache': True,
-            'wait_for_model': True
-        }
-
     # For documentation of requests consult: https://docs.python-requests.org/en/latest/user/advanced/
     # For documentation of API check config.json for API link
     response = requests.post(
-        config['hf']['sentiment_url'],
+        config.hf.sentiment_url,
         headers={
-            "Authorization": config['hf']['sentiment_token']
+            "Authorization": config.hf.sentiment_token
         },
-        json=payload,
-        proxies=config['proxies']
+        json=asdict(payload),
+        proxies=config.proxies
     )
 
     return response.json()

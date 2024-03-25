@@ -1,4 +1,4 @@
-from Config.config import load_config, ConfigType, HfConfigType, ProxiesConfigType
+from .config import load_config, Config, HfConfig, ProxiesConfig
 
 # Default config instance
-config: ConfigType = load_config("./Config/config.json")
+config: Config = load_config("./Config/config.json")
