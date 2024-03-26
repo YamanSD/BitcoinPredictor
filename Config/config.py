@@ -1,9 +1,8 @@
 from dataclasses import dataclass
 from typing import TypedDict
 
-import json
 
-from Utils import convert_to_dataclass
+from Utils import convert_to_dataclass, read_json
 
 
 @dataclass(frozen=True)
@@ -18,6 +17,20 @@ class HfConfig:
     """
     sentiment_token: str
     sentiment_url: str
+
+
+@dataclass(frozen=True)
+class KaggleConfig:
+    """
+    Class used for Kaggle configuration.
+
+
+    username: Kaggle username.
+
+    key: Kaggle auth key.
+    """
+    username: str
+    key: str
 
 
 class ProxiesConfig(TypedDict):
@@ -47,6 +60,7 @@ class Config:
     """
     hf: HfConfig
     proxies: ProxiesConfig
+    kaggle: KaggleConfig
 
 
 def load_config(path: str) -> Config:
@@ -55,13 +69,11 @@ def load_config(path: str) -> Config:
     :param path: Path to JSON config.
     :return:
     """
-    with open(path, 'r') as file:
-        data: dict = json.load(file)
+    data: dict = read_json(path)
 
-    # Convert to ConfigType object
-    hf_config: HfConfig = convert_to_dataclass(HfConfig, data['hf'])
-
+    # Convert to ConfigType object and return
     return convert_to_dataclass(Config, {
         **data,
-        "hf": hf_config,
+        "hf": convert_to_dataclass(HfConfig, data['hf']),
+        "kaggle": convert_to_dataclass(KaggleConfig, data['kaggle'])
     })

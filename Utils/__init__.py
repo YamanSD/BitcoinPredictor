@@ -1,1 +1,1 @@
-from .dataclass_utils import convert_to_dataclass
+from .utils import convert_to_dataclass, read_json

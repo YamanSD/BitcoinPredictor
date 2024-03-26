@@ -1,7 +1,4 @@
-import asyncio
-
-from Sentiment import query, SentimentRequest
-from Crawler import spider
+from Data import loader
 
 
 def main() -> None:
@@ -11,11 +8,13 @@ def main() -> None:
     #
     # print(type(output), output)
 
-    l = asyncio.run(spider.query_text(
-        keywords="What is an apple",
-        max_results=1028
-    ))
-    print(len(l))
+    # l = asyncio.run(spider.query_text(
+    #     keywords="What is an apple",
+    #     max_results=1028,
+    # ))
+    # print(len(l))
+
+    print(loader.load_bitcoin().shape)
     return
 
 

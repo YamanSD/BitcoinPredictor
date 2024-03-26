@@ -9,7 +9,6 @@ from duckduckgo_search import AsyncDDGS
 from Config import config
 from Utils import convert_to_dataclass
 
-
 # Type of search regions
 Region = Literal[
     'xa-ar', 'xa-en',
@@ -195,7 +194,7 @@ async def query_news(
 async def query_text(
         keywords: str,
         max_results: int = 1,
-        timelimit: Literal['d', 'w', 'm'] | list[DateBound, DateBound] | None = None,
+        timelimit: Literal['d', 'w', 'm'] | tuple[DateBound, DateBound] | None = None,
         safe_search: Literal['on', 'moderate', 'off'] = 'off',
         region: Region = 'wt-wt',
 ) -> list[SpiderTextResponse]:
@@ -219,8 +218,8 @@ async def query_text(
                 max_results=max_results,
                 safesearch=safe_search,
                 timelimit=(
-                    timelimit if type(timelimit) == str
-                    else f"{timelimit[0]}..{timelimit[1]}" if type(timelimit) == tuple[DateBound, DateBound]
+                    str(timelimit) if type(timelimit) is str
+                    else f"{timelimit[0]}..{timelimit[1]}" if type(timelimit) is tuple[DateBound, DateBound]
                     else None
                 ),
                 region=region

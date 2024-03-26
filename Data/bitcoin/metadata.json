@@ -1,0 +1,211 @@
+{
+    "alternateName": "Analyzing Bitcoin Price Dynamics: High-Frequency Data from 2017 to 2023",
+    "@context": {
+        "@language": "en",
+        "@vocab": "https://schema.org/",
+        "column": "ml:column",
+        "extract": "ml:extract",
+        "field": "ml:field",
+        "fileProperty": "ml:fileProperty",
+        "format": "ml:format",
+        "includes": "ml:includes",
+        "isEnumeration": "ml:isEnumeration",
+        "jsonPath": "ml:jsonPath",
+        "ml": "http://mlcommons.org/schema/",
+        "parentField": "ml:parentField",
+        "path": "ml:path",
+        "recordSet": "ml:recordSet",
+        "references": "ml:references",
+        "regex": "ml:regex",
+        "repeated": "ml:repeated",
+        "replace": "ml:replace",
+        "sc": "https://schema.org/",
+        "separator": "ml:separator",
+        "source": "ml:source",
+        "subField": "ml:subField",
+        "transform": "ml:transform",
+        "data": {
+            "@id": "ml:data",
+            "@type": "@json"
+        },
+        "dataType": {
+            "@id": "ml:dataType",
+            "@type": "@vocab"
+        }
+    },
+    "citation": "None",
+    "license": "Other (specified in description)",
+    "url": "https://www.kaggle.com/datasets/jkraak/bitcoin-price-dataset",
+    "distribution": [
+        {
+            "contentUrl": "https://www.kaggle.com/api/v1/datasets/download/jkraak/bitcoin-price-dataset",
+            "contentSize": "126.919 MB",
+            "md5": "MxC8TKGhrbavufmdxveQmg==",
+            "fileExtension": ".zip",
+            "encodingFormat": "application/zip",
+            "@type": "sc:FileObject",
+            "name": "archive.zip",
+            "description": "Archive containing all the contents of the Bitcoin Price Dataset (2017-2023) dataset"
+        },
+        {
+            "contentUrl": "bitcoin_2017_to_2023.csv",
+            "containedIn": "archive.zip",
+            "encodingFormat": "text/csv",
+            "@type": "sc:FileObject",
+            "name": "bitcoin_2017_to_2023.csv",
+            "description": "This dataset provides granular insights into the price history of **Bitcoin**, allowing users to explore **minute-by-minute changes in its market value**. The dataset includes attributes such as the open price, high price, low price, close price, trading volume, and the timestamp of each recorded interval. The data is presented in **CSV format**, making it easily accessible for analysis and visualization."
+        }
+    ],
+    "recordSet": [
+        {
+            "field": [
+                {
+                    "dataType": [
+                        "sc:Date"
+                    ],
+                    "source": {
+                        "distribution": "bitcoin_2017_to_2023.csv",
+                        "extract": {
+                            "column": "timestamp"
+                        }
+                    },
+                    "@type": "ml:Field",
+                    "name": "timestamp",
+                    "description": "Timestamp "
+                },
+                {
+                    "dataType": [
+                        "sc:Float"
+                    ],
+                    "source": {
+                        "distribution": "bitcoin_2017_to_2023.csv",
+                        "extract": {
+                            "column": "open"
+                        }
+                    },
+                    "@type": "ml:Field",
+                    "name": "open",
+                    "description": "Opening price for that timestamp"
+                },
+                {
+                    "dataType": [
+                        "sc:Float"
+                    ],
+                    "source": {
+                        "distribution": "bitcoin_2017_to_2023.csv",
+                        "extract": {
+                            "column": "high"
+                        }
+                    },
+                    "@type": "ml:Field",
+                    "name": "high",
+                    "description": "Highest price for the timestamp interval"
+                },
+                {
+                    "dataType": [
+                        "sc:Float"
+                    ],
+                    "source": {
+                        "distribution": "bitcoin_2017_to_2023.csv",
+                        "extract": {
+                            "column": "low"
+                        }
+                    },
+                    "@type": "ml:Field",
+                    "name": "low",
+                    "description": "Lowest price for the timestamp interval"
+                },
+                {
+                    "dataType": [
+                        "sc:Float"
+                    ],
+                    "source": {
+                        "distribution": "bitcoin_2017_to_2023.csv",
+                        "extract": {
+                            "column": "close"
+                        }
+                    },
+                    "@type": "ml:Field",
+                    "name": "close",
+                    "description": "Closing price for the timestamp interval"
+                },
+                {
+                    "dataType": [
+                        "sc:Float"
+                    ],
+                    "source": {
+                        "distribution": "bitcoin_2017_to_2023.csv",
+                        "extract": {
+                            "column": "volume"
+                        }
+                    },
+                    "@type": "ml:Field",
+                    "name": "volume",
+                    "description": "Volume for the specified timestamp range"
+                },
+                {
+                    "dataType": [
+                        "sc:Float"
+                    ],
+                    "source": {
+                        "distribution": "bitcoin_2017_to_2023.csv",
+                        "extract": {
+                            "column": "quote_asset_volume"
+                        }
+                    },
+                    "@type": "ml:Field",
+                    "name": "quote_asset_volume",
+                    "description": "Quote asset volume for the specified timestamp range"
+                },
+                {
+                    "dataType": [
+                        "sc:Integer"
+                    ],
+                    "source": {
+                        "distribution": "bitcoin_2017_to_2023.csv",
+                        "extract": {
+                            "column": "number_of_trades"
+                        }
+                    },
+                    "@type": "ml:Field",
+                    "name": "number_of_trades",
+                    "description": "Number of trades for the specified timestamp range"
+                },
+                {
+                    "dataType": [
+                        "sc:Float"
+                    ],
+                    "source": {
+                        "distribution": "bitcoin_2017_to_2023.csv",
+                        "extract": {
+                            "column": "taker_buy_base_asset_volume"
+                        }
+                    },
+                    "@type": "ml:Field",
+                    "name": "taker_buy_base_asset_volume",
+                    "description": "Taker buy base asset volume for the specified timestamp range"
+                },
+                {
+                    "dataType": [
+                        "sc:Float"
+                    ],
+                    "source": {
+                        "distribution": "bitcoin_2017_to_2023.csv",
+                        "extract": {
+                            "column": "taker_buy_quote_asset_volume"
+                        }
+                    },
+                    "@type": "ml:Field",
+                    "name": "taker_buy_quote_asset_volume",
+                    "description": "Taker buy quote asset volume for the specified timestamp range"
+                }
+            ],
+            "@type": "ml:RecordSet",
+            "name": "bitcoin_2017_to_2023.csv_records",
+            "description": "This dataset provides granular insights into the price history of **Bitcoin**, allowing users to explore **minute-by-minute changes in its market value**. The dataset includes attributes such as the open price, high price, low price, close price, trading volume, and the timestamp of each recorded interval. The data is presented in **CSV format**, making it easily accessible for analysis and visualization."
+        }
+    ],
+    "@type": "sc:Dataset",
+    "name": "Bitcoin-Price-Dataset--2017-2023-",
+    "description": "## Bitcoin Historical Dataset 3M records from 2017-2023\n\n### Context:\n**Bitcoin**, the pioneering cryptocurrency, has captured the world's attention as a decentralized digital asset with a fluctuating market value. This dataset offers a comprehensive record of Bitcoin's price evolution, spanning from **August 2017 to July 2023**. The data has been meticulously collected from the **Binance API**, with **price data captured at one-minute intervals**. Each record includes essential information such as the **open, high, low, and close prices, alongside associated trading volume**. This dataset provides an invaluable resource for those interested in studying Bitcoin's price trends and market dynamics.\n\n### **Dataset Details:**\n**Total Number of Entries**: 3.126.000\n\n**Attributes**: Timestamp, Open Price, High Price, Low Price, Close Price, Volume ,  Quote asset volume, Number of trades, Taker buy base asset volume, Taker buy quote asset volume.\n\n**Data Type**: csv\n\n**Size**: 133 MB\n\n**Date ranges**: 2023/08/17 till 2023/07/31 \n\n### Content:\nThis dataset provides granular insights into the price history of Bitcoin, allowing users to explore minute-by-minute changes in its market value. The dataset includes attributes such as the open price, high price, low price, close price, trading volume, and the timestamp of each recorded interval. The data is presented in CSV format, making it easily accessible for analysis and visualization.\n\n### Inspiration:\nThe Bitcoin Price Dataset opens up numerous avenues for exploration and analysis, driven by the availability of high-frequency data. Potential research directions include:\n\n**Intraday Price Patterns**: How do Bitcoin prices vary within a single day? Are there recurring patterns or trends during specific hours?\n**Volatility Analysis**: What are the periods of heightened volatility in Bitcoin's price history, and how do they correlate with external events or market developments?\n**Correlation with Events**: Can you identify instances where significant price movements coincide with notable events in the cryptocurrency space or broader financial markets?\n**Long-Term Trends**: How has the average price of Bitcoin evolved over different years? Are there multi-year trends that stand out?\n**Trading Volume Impact:** Is there a relationship between trading volume and price movement? How does trading activity affect short-term price fluctuations?\n\n### Acknowledgements:\nThe dataset has been sourced directly from the Binance API, a prominent cryptocurrency exchange platform. The collaboration with Binance ensures the dataset's accuracy and reliability, offering users a trustworthy foundation for conducting analyses and research related to Bitcoin's price movements.\n\n### Licensing:\nUsers are welcome to utilize this dataset for personal, educational, and research purposes, with attribution to the Binance API as the source of the data.\n\nHope you enjoy this dataset as much as I enjoyed putting it together. Can't wait to see what you can come up with :)"
+}
