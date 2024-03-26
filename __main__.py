@@ -14,7 +14,8 @@ def main() -> None:
     # ))
     # print(len(l))
 
-    print(loader.load_bitcoin().shape)
+    t = loader.load_dxy()
+    print(t, type(t))
     return
 
 

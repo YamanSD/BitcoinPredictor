@@ -46,6 +46,14 @@ class ProxiesConfig(TypedDict):
     https: str
 
 
+"""
+Class used for request headers.
+
+User-Agent: User agent header for requests that require user browsers.
+"""
+HeaderConfig = TypedDict('HeaderConfig', {'User-Agent': str})
+
+
 @dataclass(frozen=True)
 class Config:
     """
@@ -61,6 +69,7 @@ class Config:
     hf: HfConfig
     proxies: ProxiesConfig
     kaggle: KaggleConfig
+    header: HeaderConfig
 
 
 def load_config(path: str) -> Config:

@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, asdict
+from requests import post
 from typing import Literal, Optional
-import requests
 
 from Config import config
 
@@ -57,13 +57,11 @@ def query(payload: SentimentRequest) -> list[list[SentimentResponse]]:
     """
     # For documentation of requests consult: https://docs.python-requests.org/en/latest/user/advanced/
     # For documentation of API check config.json for API link
-    response = requests.post(
+    return post(
         config.hf.sentiment_url,
         headers={
             "Authorization": config.hf.sentiment_token
         },
         json=asdict(payload),
         proxies=config.proxies
-    )
-
-    return response.json()
+    ).json()

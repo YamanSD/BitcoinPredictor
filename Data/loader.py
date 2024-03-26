@@ -40,7 +40,8 @@ def load_croissant(dir_name: str) -> DataFrame:
         path.join(dest_path, f"data.{encoding}")
     )
 
-    remove(folder_name)
+    # Remove the downloaded folder
+    remove(path.join(dest_path, folder_name))
 
     # Return re-read the file
     return load_croissant(dir_name)
@@ -48,8 +49,36 @@ def load_croissant(dir_name: str) -> DataFrame:
 
 def load_bitcoin() -> DataFrame:
     """
-    Loads the bitcoin price Data from 2017 to 2023 and returns
-    it as a DataFrame.
+    Loads the bitcoin price Data from 2017 to 2023 and returns it as a DataFrame.
     If not present locally, the dataset is downloaded.
     """
     return load_croissant("bitcoin")
+
+
+def load_dxy() -> DataFrame:
+    """
+    Loads the DXY (US Dollar Index) data from 2017 to 2023 and returns it as a DataFrame.
+    If not present locally, the data must be downloaded manually and placed in the dxy folder.
+    Use the following link: https://www.wsj.com/market-data/quotes/index/DXY/historical-prices/download?MOD_VIEW=page&num_rows=2555&range_days=2555&startDate=01/01/2017&endDate=12/31/2023
+    """
+
+    # Return the file
+    return read_csv(path.join(path.dirname(path.realpath(__file__)), "dxy", "data.csv"))
+
+
+def load_fed_funds() -> DataFrame:
+    """
+    Loads the US federal funding rate from 1954 to 2024 and returns it as a DataFrame.
+    """
+
+    # Return the file
+    return read_csv(path.join(path.dirname(path.realpath(__file__)), "fedFunds", "data.csv"))
+
+
+def load_inflation() -> DataFrame:
+    """
+    Loads the US inflation rate from 1954 to 2024 and returns it as a DataFrame.
+    """
+
+    # Return the file
+    return read_csv(path.join(path.dirname(path.realpath(__file__)), "inflation", "data.csv"))
