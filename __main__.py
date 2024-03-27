@@ -1,4 +1,4 @@
-from Data import loader
+from Config import config
 
 
 def main() -> None:
@@ -14,8 +14,10 @@ def main() -> None:
     # ))
     # print(len(l))
 
-    t = loader.load_dxy()
-    print(t, type(t))
+    # t = loader.load_dxy()
+    # print(t, type(t))
+
+    print(config)
     return
 
 
