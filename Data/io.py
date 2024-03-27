@@ -80,15 +80,6 @@ def load_fed_funds() -> DataFrame:
     return read_csv(path.join(dir_path, "fedFunds", "data.csv"))
 
 
-def load_inflation() -> DataFrame:
-    """
-    Loads the US inflation rate from 1954 to 2024 and returns it as a DataFrame.
-    """
-
-    # Return the file
-    return read_csv(path.join(path.dirname(path.realpath(__file__)), "inflation", "data.csv"))
-
-
 def save_clean_parquet(
         df: DataFrame,
         folder: Literal['bitcoin', 'dxy', 'fedFunds', 'inflation']

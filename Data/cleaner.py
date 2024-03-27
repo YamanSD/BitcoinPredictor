@@ -74,7 +74,9 @@ def clean_dxy() -> DataFrame:
     :returns: the cleaned DataFrame.
     """
 
+    # Timestamp column name
     ts: str = 'Date'
+
     df: DataFrame = load_dxy()
 
     # Complete the year
@@ -83,7 +85,7 @@ def clean_dxy() -> DataFrame:
     # Convert the timestamp column to a datetime object
     df[ts] = to_datetime(df[ts], format="%m/%d/%Y")
 
-    # Set the timestamp column as the index
+    # Set the timestamp column as the index (for df.resample to work)
     df.set_index(ts, inplace=True)
 
     # Resample the DataFrame into minute intervals and forward fill the values
@@ -96,6 +98,52 @@ def clean_dxy() -> DataFrame:
     save_clean_parquet(df, 'dxy')
 
     return df
+
+
+def clean_fedFunds() -> DataFrame:
+    """
+    Cleans the federal funds dataset and saves it.
+    :returns: the cleaned DataFrame.
+    """
+
+    # Timestamp column name
+    ts: str = 'date'
+
+    df: DataFrame = load_fed_funds()
+
+    # Extract only useful dates
+    df = df[('2017-01-01' <= df[ts]) & (df[ts] <= '2023-31-12')]
+
+    # Convert the timestamp column to a datetime object
+    df[ts] = to_datetime(df[ts], format="%Y-%m-%d")
+
+    # Set the timestamp column as the index (for df.resample to work)
+    df.set_index(ts, inplace=True)
+
+    # Resample the DataFrame into minute intervals and forward fill the values
+    df = df.resample('min').ffill()
+
+    # Reset the index
+    df.reset_index(inplace=True)
+
+    # Save file
+    save_clean_parquet(df, 'fedFunds')
+    save_clean_csv(df, 'fedFunds')
+
+    return df
+
+
+def load_clean_fedFunds() -> DataFrame:
+    """
+    Loads the cleaned US federal funding rate from 2017 to 2023 and returns it as a DataFrame.
+    """
+    cl_path: str = path.join(dir_path, "fedFunds", "clean.parquet")
+
+    # If we have already cleaned the file, then return it.
+    if path.exists(cl_path):
+        return read_parquet(cl_path)
+
+    return clean_fedFunds()
 
 
 def load_clean_dxy() -> DataFrame:
