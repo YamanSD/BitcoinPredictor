@@ -1,4 +1,4 @@
-from pandas import DataFrame, Series, Timedelta, to_datetime, read_parquet
+from pandas import Series, Timedelta, to_datetime, read_parquet
 from pandas.core.dtypes.common import is_numeric_dtype
 
 from .io import *
