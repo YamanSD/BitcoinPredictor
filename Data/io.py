@@ -3,9 +3,14 @@ from json import dumps
 from opendatasets import download
 from os import path, rename, remove
 from pandas import DataFrame, read_csv
+from typing import Literal
 
 from Config import config
 from Utils import read_json
+
+
+# Directory path
+dir_path: str = path.dirname(path.realpath(__file__))
 
 
 def load_croissant(dir_name: str) -> DataFrame:
@@ -15,14 +20,15 @@ def load_croissant(dir_name: str) -> DataFrame:
     """
 
     # Path to the Data file
-    dest_path: str = path.join(path.dirname(path.realpath(__file__)), dir_name)
-    metadata_path: str = path.join(path.dirname(path.realpath(__file__)), dir_name, "metadata.json")
+    dest_path: str = path.join(dir_path, dir_name)
+    metadata_path: str = path.join(dir_path, dir_name, "metadata.json")
     meta_data: dict = read_json(metadata_path)
     encoding: str = meta_data['distribution'][1]['encodingFormat'].split('/')[-1]
+    cl_path: str = path.join(dest_path, f"data.{encoding}")
 
     # If we have already downloaded the file, then return it.
-    if path.exists(path.join(dest_path, f"data.{encoding}")):
-        return read_csv(path.join(dest_path, f"data.{encoding}"))
+    if path.exists(cl_path):
+        return read_csv(cl_path)
 
     url: str = meta_data['url']
     folder_name: str = url.split('/')[-1]
@@ -59,11 +65,10 @@ def load_dxy() -> DataFrame:
     """
     Loads the DXY (US Dollar Index) data from 2017 to 2023 and returns it as a DataFrame.
     If not present locally, the data must be downloaded manually and placed in the dxy folder.
-    Use the following link: https://www.wsj.com/market-data/quotes/index/DXY/historical-prices/download?MOD_VIEW=page&num_rows=2555&range_days=2555&startDate=01/01/2017&endDate=12/31/2023
     """
 
     # Return the file
-    return read_csv(path.join(path.dirname(path.realpath(__file__)), "dxy", "data.csv"))
+    return read_csv(path.join(dir_path, "dxy", "data.csv"))
 
 
 def load_fed_funds() -> DataFrame:
@@ -72,7 +77,7 @@ def load_fed_funds() -> DataFrame:
     """
 
     # Return the file
-    return read_csv(path.join(path.dirname(path.realpath(__file__)), "fedFunds", "data.csv"))
+    return read_csv(path.join(dir_path, "fedFunds", "data.csv"))
 
 
 def load_inflation() -> DataFrame:
@@ -82,3 +87,29 @@ def load_inflation() -> DataFrame:
 
     # Return the file
     return read_csv(path.join(path.dirname(path.realpath(__file__)), "inflation", "data.csv"))
+
+
+def save_clean_parquet(
+        df: DataFrame,
+        folder: Literal['bitcoin', 'dxy', 'fedFunds', 'inflation']
+) -> None:
+    """
+    The file is saved as clean.parquet
+
+    :param df: DataFrame to save as a Parquet file.
+    :param folder: Folder to save the Parquet file in.
+    """
+    df.to_parquet(path.join(dir_path, folder, "clean.parquet"))
+
+
+def save_clean_csv(
+        df: DataFrame,
+        folder: Literal['bitcoin', 'dxy', 'fedFunds', 'inflation']
+) -> None:
+    """
+    The file is saved as clean.csv
+
+    :param df: DataFrame to save as a CSV file.
+    :param folder: Folder to save the CSV file in.
+    """
+    df.to_csv(path.join(dir_path, folder, "clean.csv"))
