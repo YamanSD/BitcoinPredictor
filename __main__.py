@@ -7,8 +7,7 @@ except ImportError:
     pass
 
 from Config import config
-from Data import clean_dxy, clean_fedFunds, clean_bitcoin
-
+from Data import clean_dxy, clean_fedFunds, clean_bitcoin, load_clean_fear_greed, load_clean_fedFunds
 
 def main() -> None:
     # Enable ANSI support on Windows
@@ -32,12 +31,13 @@ def main() -> None:
     # df = load_clean_dxy()
     # dfb = load_clean_bitcoin()
     # print(df.shape, dfb.shape)
-    df = clean_dxy()
-    df1 = clean_fedFunds()
-    df2 = clean_bitcoin()[0]
-    print(df.head())
-    print(df1.head())
-    print(df2.head())
+    df = load_clean_fear_greed()
+    df1 = load_clean_fedFunds()
+
+    print(df.head(), df.tail(), df.columns,  df.shape)
+    print(df1.head(), df1.tail(), df1.columns, df1.shape)
+    print(df.index.is_unique)
+    print(df1.index.is_unique)
     return
 
 

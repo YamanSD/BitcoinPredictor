@@ -3,6 +3,7 @@ from json import dumps
 from opendatasets import download
 from os import path, rename, remove
 from pandas import DataFrame, read_csv
+from requests import get
 from typing import Literal
 
 from Config import config
@@ -71,6 +72,39 @@ def load_dxy() -> DataFrame:
     return read_csv(path.join(dir_path, "dxy", "data.csv"))
 
 
+def load_fear_greed() -> DataFrame:
+    """
+    Loads the Fear and Greed data from 2018 to 2024 and returns it as a DataFrame.
+    If not present locally, the data is downloaded from the URL in the config file.
+    """
+
+    dir_name: str = "fearGreed"
+
+    # Path to the Data file
+    dest_path: str = path.join(dir_path, dir_name)
+    cl_path: str = path.join(dest_path, f"data.csv")
+
+    # If we have already downloaded the file, then return it.
+    if path.exists(cl_path):
+        return read_csv(cl_path)
+
+    # Extract the JSON data
+    res: dict = get(
+        config.fng.historical_url,
+        proxies=config.proxies
+    ).json()["data"]
+
+    df: DataFrame = DataFrame.from_dict(res)
+
+    # Drop the useless column
+    df.drop("time_until_update", axis=1, inplace=True)
+
+    # Save the data to a CSV
+    df.to_csv(cl_path)
+
+    return df
+
+
 def load_fed_funds() -> DataFrame:
     """
     Loads the US federal funding rate from 1954 to 2024 and returns it as a DataFrame.
@@ -82,7 +116,7 @@ def load_fed_funds() -> DataFrame:
 
 def save_clean_parquet(
         df: DataFrame,
-        folder: Literal['bitcoin', 'dxy', 'fedFunds', 'inflation']
+        folder: Literal['bitcoin', 'dxy', 'fedFunds', 'inflation', 'fearGreed']
 ) -> None:
     """
     The file is saved as clean.parquet
@@ -95,7 +129,7 @@ def save_clean_parquet(
 
 def save_clean_csv(
         df: DataFrame,
-        folder: Literal['bitcoin', 'dxy', 'fedFunds', 'inflation']
+        folder: Literal['bitcoin', 'dxy', 'fedFunds', 'inflation', 'fearGreed']
 ) -> None:
     """
     The file is saved as clean.csv

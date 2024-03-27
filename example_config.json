@@ -7,6 +7,9 @@
     "username": "YOUR_USERNAME",
     "key": "YOUR_KEY"
   },
+  "fng": {
+    "historical_url": "https://api.alternative.me/fng/?limit=0&format=json&date_format=world"
+  },
   "proxies": {
     "http": "socks5://localhost:9150",
     "https": "socks5://localhost:9150"

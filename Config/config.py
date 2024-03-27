@@ -33,6 +33,17 @@ class KaggleConfig:
     key: str
 
 
+@dataclass(frozen=True)
+class FearGreedConfig:
+    """
+    Class used for Fear & Greed Index configuration.
+
+
+    historical_url: URL used to obtain historic data.
+    """
+    historical_url: str
+
+
 class ProxiesConfig(TypedDict):
     """
     Class used for proxy configuration.
@@ -61,6 +72,7 @@ class Config:
     hf: HfConfig
     proxies: ProxiesConfig
     kaggle: KaggleConfig
+    fng: FearGreedConfig
 
 
 def load_config(path: str) -> Config:
@@ -75,5 +87,6 @@ def load_config(path: str) -> Config:
     return convert_to_dataclass(Config, {
         **data,
         "hf": convert_to_dataclass(HfConfig, data['hf']),
-        "kaggle": convert_to_dataclass(KaggleConfig, data['kaggle'])
+        "kaggle": convert_to_dataclass(KaggleConfig, data['kaggle']),
+        "fng": convert_to_dataclass(FearGreedConfig, data['fng']),
     })

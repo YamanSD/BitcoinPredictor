@@ -1,8 +1,10 @@
 from os import path
-from pandas import DataFrame, Series, Timedelta, to_datetime, read_parquet
+from pandas import DataFrame, Series, Timedelta, to_datetime, \
+    read_parquet, date_range, DatetimeIndex, concat, Timestamp
 from pandas.core.dtypes.common import is_numeric_dtype
 
-from .io import load_fed_funds, load_bitcoin, load_dxy, save_clean_parquet, dir_path
+from .io import load_fed_funds, load_bitcoin, load_dxy, \
+    save_clean_parquet, dir_path, load_fear_greed
 
 
 def clean_bitcoin() -> tuple[DataFrame, dict]:
@@ -127,11 +129,11 @@ def clean_fedFunds() -> DataFrame:
         "date": "timestamp"
     }, inplace=True)
 
-    # Extract only useful dates
-    df = df[('2017-01-01' <= df[ts]) & (df[ts] <= '2023-31-12')]
-
     # Convert the timestamp column to a datetime object
     df[ts] = to_datetime(df[ts], format="%Y-%m-%d")
+
+    # Extract only useful dates
+    df = df[(Timestamp('2017-01-01') <= df[ts]) & (df[ts] <= Timestamp('2023-12-31'))]
 
     # Set the timestamp column as the index (for df.resample to work)
     df.set_index(ts, inplace=True)
@@ -143,6 +145,62 @@ def clean_fedFunds() -> DataFrame:
     save_clean_parquet(df, 'fedFunds')
 
     return df
+
+
+def clean_fearGreed() -> DataFrame:
+    """
+    Cleans the fear and greed dataset and saves it.
+    :returns: the cleaned DataFrame.
+    """
+
+    # Timestamp column name
+    ts: str = 'timestamp'
+
+    df: DataFrame = load_fear_greed()
+
+    # Drop any unnamed columns
+    df.drop((c for c in df.columns if "Unnamed" in c), axis=1, inplace=True)
+
+    # Rename the columns
+    df.rename(columns={
+        "value": "fng",
+    }, inplace=True)
+
+    # This fng value is based on the bitcoin upward trend in 2017
+    missing_df: DataFrame = DataFrame.from_dict({ts: ['01-01-2017'], 'fng': [70], 'value_classification': ["Greed"]})
+
+    # Join the missing value with the current values
+    df = concat([missing_df, df]).reset_index(drop=True)
+
+    # Convert the timestamp column to a datetime object
+    df[ts] = to_datetime(df[ts], format="%d-%m-%Y")
+
+    # Extract only useful dates
+    df = df[(Timestamp('2017-01-01') <= df[ts]) & (df[ts] <= Timestamp('2023-12-31'))]
+
+    # Set the timestamp column as the index (for df.resample to work)
+    df.set_index(ts, inplace=True)
+
+    # Resample the DataFrame into minute intervals and forward fill the values
+    df = df.resample('min').ffill()
+
+    # Save file
+    save_clean_parquet(df, 'fearGreed')
+
+    return df
+
+
+def load_clean_fear_greed() -> DataFrame:
+    """
+    Loads the cleaned fear and greed index from 2017 to 2023 and returns it as a DataFrame.
+    """
+    cl_path: str = path.join(dir_path, "fearGreed", "clean.parquet")
+
+    # If we have already cleaned the file, then return it.
+    if path.exists(cl_path):
+        return read_parquet(cl_path)
+
+    return clean_fearGreed()
 
 
 def load_clean_fedFunds() -> DataFrame:
