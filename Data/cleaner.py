@@ -56,9 +56,12 @@ def clean_bitcoin() -> tuple[DataFrame, dict]:
     ts_diff: Series | DataFrame = df[ts].diff()
     invalid_ts: int = (ts_diff != Timedelta(minutes=1)).sum()
 
-    stats['invalid_timestmaps'] = invalid_ts
+    stats['invalid_timestamps'] = invalid_ts
     stats['max_timestamp_dif'] = ts_diff.max()
     stats['bad_perc'] = ((invalid_ts + dup_sz) / init_size) * 100
+
+    # Set the timestamp column as the index
+    df.set_index(ts, inplace=True)
 
     save_clean_parquet(
         df,
@@ -75,9 +78,18 @@ def clean_dxy() -> DataFrame:
     """
 
     # Timestamp column name
-    ts: str = 'Date'
+    ts: str = 'timestamp'
 
     df: DataFrame = load_dxy()
+
+    # Rename the columns
+    df.rename(columns={
+        " Open": "open_dxy",
+        " Close": "close_dxy",
+        " High": "high_dxy",
+        " Low": "low_dxy",
+        "Date": "timestamp"
+    }, inplace=True)
 
     # Complete the year
     df[ts] = df[ts].map(lambda d: f"{d[:-2]}20{d[-2:]}")
@@ -90,9 +102,6 @@ def clean_dxy() -> DataFrame:
 
     # Resample the DataFrame into minute intervals and forward fill the values
     df = df.resample('min').ffill()
-
-    # Reset the index
-    df.reset_index(inplace=True)
 
     # Save file
     save_clean_parquet(df, 'dxy')
@@ -107,9 +116,15 @@ def clean_fedFunds() -> DataFrame:
     """
 
     # Timestamp column name
-    ts: str = 'date'
+    ts: str = 'timestamp'
 
     df: DataFrame = load_fed_funds()
+
+    # Rename the columns
+    df.rename(columns={
+        " value": "fed_rate",
+        "date": "timestamp"
+    }, inplace=True)
 
     # Extract only useful dates
     df = df[('2017-01-01' <= df[ts]) & (df[ts] <= '2023-31-12')]
@@ -123,12 +138,8 @@ def clean_fedFunds() -> DataFrame:
     # Resample the DataFrame into minute intervals and forward fill the values
     df = df.resample('min').ffill()
 
-    # Reset the index
-    df.reset_index(inplace=True)
-
     # Save file
     save_clean_parquet(df, 'fedFunds')
-    save_clean_csv(df, 'fedFunds')
 
     return df
 

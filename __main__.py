@@ -7,7 +7,7 @@ except ImportError:
     pass
 
 from Config import config
-from Data import load_clean_dxy, load_clean_bitcoin, load_clean_fedFunds
+from Data import clean_dxy, clean_fedFunds, clean_bitcoin
 
 
 def main() -> None:
@@ -32,8 +32,12 @@ def main() -> None:
     # df = load_clean_dxy()
     # dfb = load_clean_bitcoin()
     # print(df.shape, dfb.shape)
-    df = load_clean_fedFunds()
-    print(df.shape)
+    df = clean_dxy()
+    df1 = clean_fedFunds()
+    df2 = clean_bitcoin()[0]
+    print(df.head())
+    print(df1.head())
+    print(df2.head())
     return
 
 
