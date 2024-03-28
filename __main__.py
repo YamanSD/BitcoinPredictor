@@ -9,12 +9,14 @@ except ImportError:
 from pandas import options
 
 from Config import config
-from Train import eigen_comp
+from Data import get_split_data
+from Train import *
 
 
 def main() -> None:
     # Enable ANSI support on Windows
     just_fix_windows_console()
+    options.display.max_columns = None
 
     # output = query(SentimentRequest(
     #     inputs=["Bitcoin is a scam LOL. Fell 40% overnight.", "Bitcoin skyrocketed to 50k!"],
@@ -39,16 +41,7 @@ def main() -> None:
     # print(df.shape)
     # print(df.columns)
 
-    options.display.max_columns = None
-    eigen_comp(True)
-
-    # df1 = load_clean_fed_funds()
-    #
-    # print(df.head(), df.tail(), df.columns, df.shape)
-    # print(df1.head(), df1.tail(), df1.columns, df1.shape)
-    # print(df.index.is_unique)
-    # print(df1.index.is_unique)
-    # return
+    m = train()
 
 
 if __name__ == '__main__':

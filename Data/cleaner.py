@@ -88,11 +88,11 @@ def clean_dxy() -> DataFrame:
     # Rename the columns
     df.rename(columns={
         " Open": "open_dxy",
-        " Close": "close_dxy",
-        " High": "high_dxy",
-        " Low": "low_dxy",
         "Date": "timestamp"
     }, inplace=True)
+
+    # Drop irrlevant columns
+    df.drop([" High", " Low", " Close"], inplace=True, axis=1)
 
     # Complete the year
     df[ts] = df[ts].map(lambda d: f"{d[:-2]}20{d[-2:]}")
