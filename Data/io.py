@@ -117,17 +117,19 @@ def load_fed_funds() -> DataFrame:
     return read_csv(path.join(dir_path, "fedFunds", "data.csv"))
 
 
-def save_clean_parquet(
+def save_parquet(
         df: DataFrame,
-        folder: Literal['bitcoin', 'dxy', 'fedFunds', 'inflation', 'fearGreed'] = ''
+        folder: Literal['bitcoin', 'dxy', 'fedFunds', 'inflation', 'fearGreed'] = '',
+        file_name: str = None
 ) -> None:
     """
     The file is saved as clean.parquet
 
     :param df: DataFrame to save as a Parquet file.
     :param folder: Folder to save the Parquet file in.
+    :param file_name: Name to save the file as.
     """
-    df.to_parquet(path.join(dir_path, folder, "clean.parquet"))
+    df.to_parquet(path.join(dir_path, folder, f"{file_name if file_name else 'clean'}.parquet"))
 
 
 def save_clean_csv(

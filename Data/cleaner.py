@@ -4,7 +4,7 @@ from pandas import DataFrame, Series, Timedelta, to_datetime, \
 from pandas.core.dtypes.common import is_numeric_dtype
 
 from .io import load_fed_funds, load_bitcoin, load_dxy, \
-    save_clean_parquet, dir_path, load_fear_greed
+    save_parquet, dir_path, load_fear_greed
 
 
 def clean_bitcoin() -> tuple[DataFrame, dict]:
@@ -66,7 +66,7 @@ def clean_bitcoin() -> tuple[DataFrame, dict]:
     # Set the timestamp column as the index
     df.set_index(ts, inplace=True)
 
-    save_clean_parquet(
+    save_parquet(
         df,
         "bitcoin"
     )
@@ -107,7 +107,7 @@ def clean_dxy() -> DataFrame:
     df = df.resample('min').ffill()
 
     # Save file
-    save_clean_parquet(df, 'dxy')
+    save_parquet(df, 'dxy')
 
     return df
 
@@ -142,7 +142,7 @@ def clean_fed_funds() -> DataFrame:
     df = df.resample('min').ffill()
 
     # Save file
-    save_clean_parquet(df, 'fedFunds')
+    save_parquet(df, 'fedFunds')
 
     return df
 
@@ -188,7 +188,7 @@ def clean_fear_greed() -> DataFrame:
     df = df.resample('min').ffill()
 
     # Save file
-    save_clean_parquet(df, 'fearGreed')
+    save_parquet(df, 'fearGreed')
 
     return df
 

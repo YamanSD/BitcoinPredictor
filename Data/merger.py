@@ -4,7 +4,7 @@ from pandas import merge, DataFrame, read_parquet
 
 from .cleaner import (load_clean_dxy, load_clean_fed_funds,
                       load_clean_bitcoin, load_clean_fear_greed)
-from .io import save_clean_parquet, dir_path
+from .io import save_parquet, dir_path
 
 
 def get_data() -> DataFrame:
@@ -36,6 +36,6 @@ def get_data() -> DataFrame:
     )
 
     # Save the cleaned parquet
-    save_clean_parquet(df)
+    save_parquet(df)
 
     return df
