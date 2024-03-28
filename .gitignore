@@ -3,11 +3,10 @@
 
 ### Custom ###
 
+*.parquet
 /config.json
 /Data/bitcoin
 !/Data/bitcoin/metadata.json
-/Data/dxy/clean.parquet
-/Data/fedFunds/clean.parquet
 /Data/fearGreed/*
 /kaggle.json
 

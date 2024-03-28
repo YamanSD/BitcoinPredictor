@@ -9,7 +9,7 @@ except ImportError:
     pass
 
 from Config import config
-from Data import clean_dxy, clean_fed_funds, clean_bitcoin, load_clean_fear_greed, load_clean_fed_funds
+from Data import get_data
 
 
 def main() -> None:
@@ -34,14 +34,18 @@ def main() -> None:
     # df = load_clean_dxy()
     # dfb = load_clean_bitcoin()
     # print(df.shape, dfb.shape)
-    df = load_clean_fear_greed()
-    df1 = load_clean_fed_funds()
+    df = get_data()
 
-    print(df.head(), df.tail(), df.columns, df.shape)
-    print(df1.head(), df1.tail(), df1.columns, df1.shape)
-    print(df.index.is_unique)
-    print(df1.index.is_unique)
-    return
+    print(df.shape)
+    print(df.columns)
+
+    # df1 = load_clean_fed_funds()
+    #
+    # print(df.head(), df.tail(), df.columns, df.shape)
+    # print(df1.head(), df1.tail(), df1.columns, df1.shape)
+    # print(df.index.is_unique)
+    # print(df1.index.is_unique)
+    # return
 
 
 if __name__ == '__main__':

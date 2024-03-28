@@ -119,7 +119,7 @@ def load_fed_funds() -> DataFrame:
 
 def save_clean_parquet(
         df: DataFrame,
-        folder: Literal['bitcoin', 'dxy', 'fedFunds', 'inflation', 'fearGreed']
+        folder: Literal['bitcoin', 'dxy', 'fedFunds', 'inflation', 'fearGreed'] = ''
 ) -> None:
     """
     The file is saved as clean.parquet
