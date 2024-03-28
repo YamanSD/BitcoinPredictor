@@ -6,10 +6,10 @@ except ImportError:
         return
 
 
-    pass
+from pandas import options
 
 from Config import config
-from Data import get_data
+from Train import eigen_comp
 
 
 def main() -> None:
@@ -34,10 +34,13 @@ def main() -> None:
     # df = load_clean_dxy()
     # dfb = load_clean_bitcoin()
     # print(df.shape, dfb.shape)
-    df = get_data()
+    # df = get_data()
+    #
+    # print(df.shape)
+    # print(df.columns)
 
-    print(df.shape)
-    print(df.columns)
+    options.display.max_columns = None
+    eigen_comp(True)
 
     # df1 = load_clean_fed_funds()
     #
