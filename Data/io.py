@@ -1,7 +1,7 @@
 from dataclasses import asdict
 from json import dumps
 from opendatasets import download
-from os import path, rename, remove
+from os import path, rename, remove, mkdir
 from pandas import DataFrame, read_csv
 from requests import get
 from typing import Literal
@@ -87,6 +87,9 @@ def load_fear_greed() -> DataFrame:
     # If we have already downloaded the file, then return it.
     if path.exists(cl_path):
         return read_csv(cl_path)
+
+    # Create the missing dir
+    mkdir(dest_path)
 
     # Extract the JSON data
     res: dict = get(
