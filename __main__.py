@@ -4,10 +4,13 @@ except ImportError:
     # Must be defined
     def just_fix_windows_console():
         return
+
+
     pass
 
 from Config import config
-from Data import clean_dxy, clean_fedFunds, clean_bitcoin, load_clean_fear_greed, load_clean_fedFunds
+from Data import clean_dxy, clean_fed_funds, clean_bitcoin, load_clean_fear_greed, load_clean_fed_funds
+
 
 def main() -> None:
     # Enable ANSI support on Windows
@@ -32,9 +35,9 @@ def main() -> None:
     # dfb = load_clean_bitcoin()
     # print(df.shape, dfb.shape)
     df = load_clean_fear_greed()
-    df1 = load_clean_fedFunds()
+    df1 = load_clean_fed_funds()
 
-    print(df.head(), df.tail(), df.columns,  df.shape)
+    print(df.head(), df.tail(), df.columns, df.shape)
     print(df1.head(), df1.tail(), df1.columns, df1.shape)
     print(df.index.is_unique)
     print(df1.index.is_unique)

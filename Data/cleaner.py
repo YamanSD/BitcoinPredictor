@@ -1,6 +1,6 @@
 from os import path
 from pandas import DataFrame, Series, Timedelta, to_datetime, \
-    read_parquet, date_range, DatetimeIndex, concat, Timestamp
+    read_parquet, concat, Timestamp, to_numeric
 from pandas.core.dtypes.common import is_numeric_dtype
 
 from .io import load_fed_funds, load_bitcoin, load_dxy, \
@@ -112,7 +112,7 @@ def clean_dxy() -> DataFrame:
     return df
 
 
-def clean_fedFunds() -> DataFrame:
+def clean_fed_funds() -> DataFrame:
     """
     Cleans the federal funds dataset and saves it.
     :returns: the cleaned DataFrame.
@@ -147,7 +147,7 @@ def clean_fedFunds() -> DataFrame:
     return df
 
 
-def clean_fearGreed() -> DataFrame:
+def clean_fear_greed() -> DataFrame:
     """
     Cleans the fear and greed dataset and saves it.
     :returns: the cleaned DataFrame.
@@ -178,6 +178,9 @@ def clean_fearGreed() -> DataFrame:
     # Extract only useful dates
     df = df[(Timestamp('2017-01-01') <= df[ts]) & (df[ts] <= Timestamp('2023-12-31'))]
 
+    # Convert index from str to numeric
+    df['fng'] = to_numeric(df['fng'])
+
     # Set the timestamp column as the index (for df.resample to work)
     df.set_index(ts, inplace=True)
 
@@ -200,10 +203,10 @@ def load_clean_fear_greed() -> DataFrame:
     if path.exists(cl_path):
         return read_parquet(cl_path)
 
-    return clean_fearGreed()
+    return clean_fear_greed()
 
 
-def load_clean_fedFunds() -> DataFrame:
+def load_clean_fed_funds() -> DataFrame:
     """
     Loads the cleaned US federal funding rate from 2017 to 2023 and returns it as a DataFrame.
     """
@@ -213,7 +216,7 @@ def load_clean_fedFunds() -> DataFrame:
     if path.exists(cl_path):
         return read_parquet(cl_path)
 
-    return clean_fedFunds()
+    return clean_fed_funds()
 
 
 def load_clean_dxy() -> DataFrame:
