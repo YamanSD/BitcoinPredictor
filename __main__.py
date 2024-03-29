@@ -17,7 +17,6 @@ def main() -> None:
     # Enable ANSI support on Windows
     just_fix_windows_console()
     options.display.max_columns = None
-    options.display.max_rows = None
 
     # output = query(SentimentRequest(
     #     inputs=["Bitcoin is a scam LOL. Fell 40% overnight.", "Bitcoin skyrocketed to 50k!"],
@@ -42,7 +41,9 @@ def main() -> None:
     # print(df.shape)
     # print(df.columns)
 
-    m = train()
+    # print(lr_test(4))
+    m = train(False)
+    print(m[1])
 
 
 if __name__ == '__main__':
