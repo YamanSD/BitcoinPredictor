@@ -17,6 +17,7 @@ def main() -> None:
     # Enable ANSI support on Windows
     just_fix_windows_console()
     options.display.max_columns = None
+    options.display.max_rows = None
 
     # output = query(SentimentRequest(
     #     inputs=["Bitcoin is a scam LOL. Fell 40% overnight.", "Bitcoin skyrocketed to 50k!"],
