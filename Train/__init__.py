@@ -1,1 +1,1 @@
-from .linear_regression import load, train
+from .linear_regression import load, train, test
