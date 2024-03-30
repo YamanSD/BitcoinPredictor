@@ -1,3 +1,5 @@
+import asyncio
+
 from sklearn.metrics import r2_score
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
@@ -15,6 +17,7 @@ from pandas import options, DataFrame
 
 from Config import config
 from Data import get_data
+import Sentiment
 from Observer import *
 import Train
 
@@ -84,12 +87,26 @@ def main() -> None:
     #     df[['number_of_trades']]
     # )
     # print((df['volume'] / df['close']))
-    t0 = time()
-    d = observe()
-    t1 = time()
+    # t0 = time()
+    # d = observe()
+    # t1 = time()
+    #
+    # # 7.739626884460449
+    # print(d, t1 - t0)
 
-    # 7.739626884460449
-    print(d, t1 - t0)
+    # print(
+    #     Sentiment.query(
+    #         Sentiment.SentimentRequest([
+    #             "bitcoin sentiment news",
+    #             "BITCOIN TO THE MOON, 100K!!",
+    #             "We lost it all, this market is a turmoil"
+    #         ])
+    #     )
+    # )
+
+    s = asyncio.run(Sentiment.general_sentiment())
+
+    print(s)
 
 
 if __name__ == '__main__':
