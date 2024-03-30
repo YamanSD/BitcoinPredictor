@@ -1,10 +1,12 @@
 from __future__ import annotations
 
+import asyncio
 from dataclasses import dataclass, asdict
 from requests import post
 from typing import Literal, Optional
 
 from Config import config
+from Crawler import spider
 
 
 @dataclass(frozen=True)
@@ -65,3 +67,14 @@ def query(payload: SentimentRequest) -> list[list[SentimentResponse]]:
         json=asdict(payload),
         proxies=config.proxies
     ).json()
+
+
+async def general_sentiment(keywords: str = "bitcoin sentiment") -> SentimentResponse:
+    """
+    Queries the web for the current general sentiment
+    :param keywords: keywords of the query.
+    :returns: the current general sentiment of the market.
+    """
+    news: list[spider.SpiderNewsResponse] = await spider.query_news(keywords)
+
+

@@ -11,7 +11,6 @@ except ImportError:
     def just_fix_windows_console():
         return
 
-
 from pandas import options, DataFrame
 
 from Config import config
@@ -79,7 +78,7 @@ def main() -> None:
     # m = Train.lgr_train()
     # print(m[1])
 
-    #, 'taker_buy_base_asset_volume', 'taker_buy_quote_asset_volume'
+    # , 'taker_buy_base_asset_volume', 'taker_buy_quote_asset_volume'
 
     # print(
     #     df[['number_of_trades']]
