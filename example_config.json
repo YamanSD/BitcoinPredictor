@@ -10,6 +10,13 @@
   "fng": {
     "historical_url": "https://api.alternative.me/fng/?limit=0&format=json&date_format=world"
   },
+  "alpha_vantage": {
+    "key0": "XXXXXXXXXXXXXXXX",
+    "key1": "XXXXXXXXXXXXXXXX"
+  },
+  "binance": {
+    "endpoint": "https://data-api.binance.vision/api/v3"
+  },
   "proxies": {
     "http": "socks5://localhost:9150",
     "https": "socks5://localhost:9150"

@@ -58,6 +58,31 @@ class ProxiesConfig(TypedDict):
 
 
 @dataclass(frozen=True)
+class BinanceConfig:
+    """
+    Class used for Binance API configuration.
+
+
+    endpoint: API endpoint. Does not need a key.
+    """
+    endpoint: str
+
+
+@dataclass(frozen=True)
+class AlphaVantageConfig:
+    """
+    Class used for AlphaVantage API configuration.
+
+
+    key0: First API key.
+
+    key1: Second API key.
+    """
+    key0: str
+    key1: str
+
+
+@dataclass(frozen=True)
 class Config:
     """
     Class used for app configuration.
@@ -73,6 +98,8 @@ class Config:
     proxies: ProxiesConfig
     kaggle: KaggleConfig
     fng: FearGreedConfig
+    binance: BinanceConfig
+    alpha_vantage: AlphaVantageConfig
 
 
 def load_config(path: str) -> Config:
@@ -89,4 +116,6 @@ def load_config(path: str) -> Config:
         "hf": convert_to_dataclass(HfConfig, data['hf']),
         "kaggle": convert_to_dataclass(KaggleConfig, data['kaggle']),
         "fng": convert_to_dataclass(FearGreedConfig, data['fng']),
+        "binance": convert_to_dataclass(BinanceConfig, data['binance']),
+        "alpha_vantage": convert_to_dataclass(AlphaVantageConfig, data['alpha_vantage']),
     })

@@ -1,3 +1,8 @@
+from sklearn.metrics import r2_score
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from matplotlib import pyplot as plt
+
 try:
     from colorama import just_fix_windows_console
 except ImportError:
@@ -6,11 +11,12 @@ except ImportError:
         return
 
 
-from pandas import options
+from pandas import options, DataFrame
 
 from Config import config
-from Data import get_split_data
-from Train import *
+from Data import get_data
+from Observer import *
+import Train
 
 
 def main() -> None:
@@ -40,10 +46,45 @@ def main() -> None:
     #
     # print(df.shape)
     # print(df.columns)
+    # X, y = get_split_data()
+    # scaler: StandardScaler = StandardScaler().set_output(transform="pandas")
+    # X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, shuffle=False)
+    #
+    # X_train = scaler.fit_transform(X_train)
+    # X_test = scaler.transform(X_test)
+    #
+    # # print(lr_test(4))    print(m)
+    # m = elr_load()
+    # y_pred = DataFrame(m.predict(X_test), columns=["high", "low", "close"])
+    # print(r2_score(y_test, y_pred))
+    #
+    # plt.plot(X_test.index, y_pred["close"], color='r')
+    # plt.plot(X_test.index, y_test["close"], color='g')
+    # plt.savefig("g.svg")
 
-    # print(lr_test(4))
-    m = train(False)
-    print(m[1])
+    # BTC
+    # FNG
+    # Federal Fund
+    # DXY
+    # Sentiment
+
+    # number_of_trades
+    # quote_asset_volume
+    # taker_buy_base_asset_volume
+    # taker_buy_quote_asset_volume
+    # m = Train.lgr_train()
+    # https://livecoinwatch.github.io/lcw-api-docs/#coinscontract
+    # get_data(True)
+    # m = Train.lgr_train()
+    # print(m[1])
+
+    #, 'taker_buy_base_asset_volume', 'taker_buy_quote_asset_volume'
+
+    # print(
+    #     df[['number_of_trades']]
+    # )
+    # print((df['volume'] / df['close']))
+    print(fetch()[-1])
 
 
 if __name__ == '__main__':
