@@ -2,6 +2,7 @@ from sklearn.metrics import r2_score
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from matplotlib import pyplot as plt
+from time import time
 
 try:
     from colorama import just_fix_windows_console
@@ -84,9 +85,12 @@ def main() -> None:
     #     df[['number_of_trades']]
     # )
     # print((df['volume'] / df['close']))
-    r = fng_fetch()
+    t0 = time()
+    d = observe()
+    t1 = time()
 
-    print(r)
+    # 7.739626884460449
+    print(d, t1 - t0)
 
 
 if __name__ == '__main__':

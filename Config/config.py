@@ -77,12 +77,15 @@ class AlphaVantageConfig:
     Class used for AlphaVantage API configuration.
 
 
-    key0: First API key.
+    url: API endpoint.
 
-    key1: Second API key.
+    keys: List of usable API keys.
+
+    limit: Maximum number of requests per key.
     """
-    key0: str
-    key1: str
+    url: str
+    keys: list[str]
+    limit: int
 
 
 @dataclass(frozen=True)
@@ -102,6 +105,7 @@ class Config:
     kaggle: KaggleConfig
     fng: FearGreedConfig
     binance: BinanceConfig
+    alpha_vantage: AlphaVantageConfig
 
 
 def load_config(path: str) -> Config:

@@ -12,8 +12,9 @@
     "live_url": "https://api.alternative.me/fng/?limit=1&format=json&date_format=world"
   },
   "alpha_vantage": {
-    "key0": "XXXXXXXXXXXXXXXX",
-    "key1": "XXXXXXXXXXXXXXXX"
+    "url": "https://www.alphavantage.co/query",
+    "keys": ["XXXXXXXXXXXXXXXX"],
+    "limit": 25
   },
   "binance": {
     "endpoint": "https://data-api.binance.vision/api/v3"

@@ -28,7 +28,16 @@ def fetch() -> FngResponse:
         proxies=config.proxies,
     ).json()['data'][0]
 
+    # Current UTC time
+    current: datetime = datetime.utcnow()
+
     return convert_to_dataclass(FngResponse, {
-        "timestamp": datetime.strptime(data['timestamp'], "%d-%m-%Y"),
+        "timestamp": datetime.strptime(
+            data['timestamp'],
+            "%d-%m-%Y"
+        ).replace(
+            hour=current.hour,
+            minute=current.minute
+        ),
         "fng": int(data['value'])
     })
