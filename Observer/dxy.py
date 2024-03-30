@@ -17,6 +17,7 @@ class DxyResponse:
 
 def fetch() -> DxyResponse:
     """
+    https://pypi.org/project/yfinance/
     Fetch the latest current-minute-interval information.
 
 

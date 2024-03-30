@@ -84,7 +84,7 @@ def main() -> None:
     #     df[['number_of_trades']]
     # )
     # print((df['volume'] / df['close']))
-    r = dxy_fetch()
+    r = fng_fetch()
 
     print(r)
 

@@ -40,8 +40,11 @@ class FearGreedConfig:
 
 
     historical_url: URL used to obtain historic data.
+
+    live_url: URL used to obtain live data.
     """
     historical_url: str
+    live_url: str
 
 
 class ProxiesConfig(TypedDict):
@@ -99,7 +102,6 @@ class Config:
     kaggle: KaggleConfig
     fng: FearGreedConfig
     binance: BinanceConfig
-    alpha_vantage: AlphaVantageConfig
 
 
 def load_config(path: str) -> Config:
