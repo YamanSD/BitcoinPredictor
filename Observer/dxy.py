@@ -1,24 +1,34 @@
 from datetime import datetime
 from dataclasses import dataclass
-from requests import get
+from yfinance import Ticker
 
 from Config import config
 from Utils import convert_to_dataclass
 
-import yfinance as yf
 
 @dataclass(frozen=True)
-class KlineResponse:
+class DxyResponse:
     """
-    Class used to encapsulate kline API responses.
+    Class used to encapsulate Yahoo Finance DXY API responses.
     """
     timestamp: datetime
-    open: float
-    high: float
-    low: float
-    close: float
-    volume: float
-    quote_asset_volume: float
-    number_of_trades: int
-    taker_buy_base_asset_volume: float
-    taker_buy_quote_asset_volume: float
+    open_dxy: float
+
+
+def fetch() -> DxyResponse:
+    """
+    Fetch the latest current-minute-interval information.
+
+
+    :returns: The latest DXY response.
+    """
+
+    dxy: Ticker = Ticker("DX-Y.NYB", proxy=config.proxies['https'])
+    data: dict = dxy.info
+
+    return convert_to_dataclass(
+        DxyResponse, {
+            "timestamp": datetime.utcnow().replace(second=0, microsecond=0),
+            "open_dxy": float(data['open']),
+        }
+    )

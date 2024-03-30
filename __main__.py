@@ -84,7 +84,9 @@ def main() -> None:
     #     df[['number_of_trades']]
     # )
     # print((df['volume'] / df['close']))
-    print(fetch()[-1])
+    r = dxy_fetch()
+
+    print(r)
 
 
 if __name__ == '__main__':

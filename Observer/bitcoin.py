@@ -25,8 +25,8 @@ class KlineResponse:
 
 def fetch() -> list[KlineResponse]:
     """
-    # https://binance-docs.github.io/apidocs/spot/en/#kline-candlestick-data
-    Fetch the latest current minute-interval information.
+    https://binance-docs.github.io/apidocs/spot/en/#kline-candlestick-data
+    Fetch the latest current-minute-interval information.
 
 
     :returns: The latest 5 minute KlineResponse.
@@ -34,6 +34,7 @@ def fetch() -> list[KlineResponse]:
 
     data: list[list] = get(
         f"{config.binance.endpoint}/klines",
+        proxies=config.proxies,
         params={
             'symbol': "BTCUSDT",
             'interval': '1m',
