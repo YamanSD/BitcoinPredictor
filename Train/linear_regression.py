@@ -13,6 +13,21 @@ from Data import get_split_data
 dir_path: str = path.dirname(path.realpath(__file__))
 
 
+def scale(df: DataFrame, scaler: StandardScaler = None) -> DataFrame:
+    """
+    Scales the given data set to make it suitable for use in prediction.
+
+    :param df: DataFrame to scale.
+    :param scaler: Custom standard scaler to use.
+    :returns: the scaled DataFrame.
+    """
+
+    if scaler is None:
+        scaler = StandardScaler().set_output(transform="pandas")
+
+    return scaler.transform(df)
+
+
 def simple_train(x_test: DataFrame, x_train: DataFrame, y_train: DataFrame) -> tuple[LinearRegression, DataFrame]:
     """
     :param x_test: X testing data frame.
@@ -24,7 +39,7 @@ def simple_train(x_test: DataFrame, x_train: DataFrame, y_train: DataFrame) -> t
     scaler: StandardScaler = StandardScaler().set_output(transform="pandas")
 
     x_train = scaler.fit_transform(x_train)
-    x_test = scaler.transform(x_test)
+    x_test = scale(x_test, scaler)
 
     # LR model
     regressor: LinearRegression = LinearRegression()

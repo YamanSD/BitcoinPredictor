@@ -13,6 +13,21 @@ from Data import get_split_data
 dir_path: str = path.dirname(path.realpath(__file__))
 
 
+def scale(df: DataFrame, scaler: StandardScaler = None) -> DataFrame:
+    """
+    Scales the given data set to make it suitable for use in prediction.
+
+    :param df: DataFrame to scale.
+    :param scaler: Custom standard scaler to use.
+    :returns: the scaled DataFrame.
+    """
+
+    if scaler is None:
+        scaler = StandardScaler().set_output(transform="pandas")
+
+    return scaler.transform(df)
+
+
 def simple_train(X_test: DataFrame, X_train: DataFrame, y_train: DataFrame) -> tuple[HalvingGridSearchCV, DataFrame]:
     """
     :param X_test: X testing data frame.
@@ -30,7 +45,7 @@ def simple_train(X_test: DataFrame, X_train: DataFrame, y_train: DataFrame) -> t
     }
 
     X_train = scaler.fit_transform(X_train)
-    X_test = scaler.transform(X_test)
+    X_test = scale(X_test, scaler)
 
     elastic: HalvingGridSearchCV = HalvingGridSearchCV(
         ElasticNet(),

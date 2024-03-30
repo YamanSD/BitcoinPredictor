@@ -104,9 +104,13 @@ def main() -> None:
     #     )
     # )
 
-    s = asyncio.run(Sentiment.general_sentiment())
+    # s = asyncio.run(Sentiment.general_sentiment())
+    #
+    # print(s)
 
-    print(s)
+    m = Train.lr_train()
+
+
 
 
 if __name__ == '__main__':
