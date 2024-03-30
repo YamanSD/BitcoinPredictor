@@ -19,6 +19,7 @@ from Config import config
 from Data import get_data
 import Sentiment
 from Observer import *
+from Utils import every
 import Train
 
 
@@ -107,8 +108,14 @@ def main() -> None:
     # s = asyncio.run(Sentiment.general_sentiment())
     #
     # print(s)
+    # TODO reformat documentation
 
-    m = Train.lr_train()
+    # m = Train.lr_train()
+
+    t = every(5, print, "hello world")
+    s = every(4, print, "hello back!")
+    t.start()
+    s.start()
 
 
 if __name__ == '__main__':
