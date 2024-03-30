@@ -111,7 +111,5 @@ def main() -> None:
     m = Train.lr_train()
 
 
-
-
 if __name__ == '__main__':
     main()
