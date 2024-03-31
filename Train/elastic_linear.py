@@ -1,5 +1,3 @@
-from joblib import dump, load as jload
-from os import path
 from pandas import DataFrame
 from sklearn.experimental import enable_halving_search_cv  # noqa To use HalvingGridSearchCV
 from sklearn.linear_model import ElasticNet
@@ -10,9 +8,8 @@ from sklearn.preprocessing import StandardScaler
 
 from Data import get_split_data
 
+from .common import load as g_load, save as g_save
 
-# Directory path
-dir_path: str = path.dirname(path.realpath(__file__))
 
 # Name of the model file, without extension
 save_file: str = "elr_model"
@@ -114,7 +111,7 @@ def train(*, no_save: bool = False, verbose: bool = False) -> tuple[Pipeline, fl
 
     # Evaluate the model
     if not no_save:
-        dump(pipeline, path.join(dir_path, f"{save_file}.sav"))
+        save(pipeline)
 
     return pipeline, r2_score(y_test, y_pred)
 
@@ -126,4 +123,17 @@ def load() -> Pipeline:
         The loaded model from the designated file.
 
     """
-    return jload(path.join(dir_path, f"{save_file}.sav"))
+    return g_load(save_file)
+
+
+def save(model: Pipeline) -> None:
+    """
+
+    Saves the model into its file.
+
+    Args:
+        model: Model to be saved into the file.
+
+
+    """
+    g_save(model, save_file)

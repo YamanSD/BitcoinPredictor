@@ -7,8 +7,8 @@ except ImportError:
 
 from concurrent.futures import ThreadPoolExecutor, wait, Future
 from threading import Thread
-from typing import Any, Callable
-from pandas import options, DataFrame
+from typing import Callable
+from pandas import options
 from sklearn.pipeline import Pipeline
 
 import Train
@@ -18,28 +18,80 @@ from Sentiment import general_sentiment, SentimentResponse
 from Utils import every
 
 
-def run(model: Pipeline) -> None:
+# Observation for the fed-rate flag
+observe_fed: bool = True
+
+
+def run(
+        pipeline: Pipeline,
+        callback: Callable,
+        logistic: bool = False,
+        incremental: bool = False
+) -> None:
+    """
+
+    Args:
+        pipeline: Model pipeline to use for prediction.
+        callback: Callback function that takes the prev-observation, curr-observation, and prediction.
+        logistic: True for logistic learning.
+        incremental: True if the model supports partial fitting
+
+    """
+    global observe_fed
+
     with ThreadPoolExecutor(max_workers=2) as executor:
-        res: tuple[Future, ...] = tuple(
-            executor.submit(f) for f in (
-                observe,
-                general_sentiment
-            )
-        )
+        observation_fu: Future = executor.submit(observe, observe_fed)
+        sentiment_fu: Future = executor.submit(general_sentiment)
 
         # Wait for the threads
-        wait(res)
+        wait((observation_fu, sentiment_fu))
 
-        observation: Observation = res[0].result()
-        sentiment: SentimentResponse = res[1].result()
+        # Type declarations
+        prev_observation: Observation
+        cur_observation: Observation
+        sentiment: SentimentResponse
 
-    y_pred = model.predict(
-        observation.to_df()
+        prev_observation, cur_observation = observation_fu.result()
+        sentiment: SentimentResponse = sentiment_fu.result()
+
+    # Set back to false
+    observe_fed = False
+
+    # Incremental learning based on previous candle
+    if incremental:
+        pipeline.named_steps['model'].partial_fit(
+            *prev_observation.to_train_df(logistic)
+        )
+
+    # Apply the sentiment to the observation
+    cur_observation.apply_sentiment(sentiment)
+
+    y_pred = pipeline.predict(
+        cur_observation.to_df()
     )
 
-    print(observation)
-    print("-----------------------------------")
-    print(y_pred)
+    # Callback with the predicted close, high, low
+    callback(prev_observation, cur_observation, y_pred)
+
+
+def save(model: Pipeline) -> None:
+    """
+
+    Args:
+        model: To be saved.
+
+    """
+    Train.lr_save(model)
+
+
+def set_observe() -> None:
+    """
+
+    Sets the observation flag.
+
+    """
+    global observe_fed
+    observe_fed = True
 
 
 def main() -> None:
@@ -48,9 +100,21 @@ def main() -> None:
     options.display.max_columns = None
 
     model: Pipeline = Train.lr_load()
+    incremental: bool = False
 
-    # t: Thread = every(30, run, model, Train.lr_scale)
-    run(model)
+    fed_t: Thread = every(
+        86_400 / (len(config.alpha_vantage.keys) * config.alpha_vantage.limit),
+        set_observe
+    )
+    run_t: Thread = every(60, run, model, print, False, incremental)
+
+    if incremental:
+        save_t: Thread = every(config.observer.save, save, model)
+        save_t.start()
+
+    # Start the threads
+    fed_t.start()
+    run_t.start()
 
 
 if __name__ == '__main__':

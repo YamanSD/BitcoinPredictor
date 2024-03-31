@@ -1,6 +1,3 @@
-from joblib import dump, load as jload
-from os import path
-
 from numpy import ravel, ndarray
 from pandas import DataFrame
 from sklearn.linear_model import LogisticRegression
@@ -11,9 +8,8 @@ from sklearn.preprocessing import StandardScaler
 
 from Data import get_data, target_labels
 
+from .common import load as g_load, save as g_save
 
-# Directory path
-dir_path: str = path.dirname(path.realpath(__file__))
 
 # Name of the model file, without extension
 save_file: str = "lgr_model"
@@ -109,7 +105,7 @@ def train(no_save: bool = False) -> tuple[Pipeline, float]:
 
     # Evaluate the model
     if not no_save:
-        dump(pipeline, path.join(dir_path, f"{save_file}.sav"))
+        save(pipeline)
 
     return pipeline, accuracy_score(y_test, y_pred)
 
@@ -121,4 +117,17 @@ def load() -> Pipeline:
         The loaded model from the designated file.
 
     """
-    return jload(path.join(dir_path, f"{save_file}.sav"))
+    return g_load(save_file)
+
+
+def save(model: Pipeline) -> None:
+    """
+
+    Saves the model into its file.
+
+    Args:
+        model: Model to be saved into the file.
+
+
+    """
+    g_save(model, save_file)

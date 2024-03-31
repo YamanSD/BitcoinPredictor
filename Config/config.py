@@ -89,16 +89,21 @@ class AlphaVantageConfig:
 
 
 @dataclass(frozen=True)
+class ObserverConfig:
+    """
+    Class used for observation cycles configuration.
+    Each entry is measured in seconds.
+
+
+    save: Save the model if it has incremental learning.
+    """
+    save: float
+
+
+@dataclass(frozen=True)
 class Config:
     """
     Class used for app configuration.
-
-
-    hf: HuggingFace configuration.
-
-    proxies: Proxies for the requests.
-
-    spider: spider authentication keys.
     """
     hf: HfConfig
     proxies: ProxiesConfig
@@ -106,6 +111,7 @@ class Config:
     fng: FearGreedConfig
     binance: BinanceConfig
     alpha_vantage: AlphaVantageConfig
+    observer: ObserverConfig
 
 
 def load_config(path: str) -> Config:
@@ -130,4 +136,5 @@ def load_config(path: str) -> Config:
         "fng": convert_to_dataclass(FearGreedConfig, data['fng']),
         "binance": convert_to_dataclass(BinanceConfig, data['binance']),
         "alpha_vantage": convert_to_dataclass(AlphaVantageConfig, data['alpha_vantage']),
+        "observer": convert_to_dataclass(ObserverConfig, data['observer']),
     })

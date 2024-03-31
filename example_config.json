@@ -14,7 +14,7 @@
   "alpha_vantage": {
     "url": "https://www.alphavantage.co/query",
     "keys": ["XXXXXXXXXXXXXXXX"],
-    "limit": 25
+    "limit": 12
   },
   "binance": {
     "url": "https://data-api.binance.vision/api/v3"
@@ -22,5 +22,8 @@
   "proxies": {
     "http": "socks5://localhost:9150",
     "https": "socks5://localhost:9150"
+  },
+  "observer": {
+    "save": 3600
   }
 }

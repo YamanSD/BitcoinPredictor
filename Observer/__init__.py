@@ -1,6 +1,10 @@
+from __future__ import annotations
+
 from concurrent.futures import ThreadPoolExecutor, wait, Future
 from dataclasses import dataclass, asdict
 from datetime import datetime
+
+from numpy import ravel, ndarray
 from pandas import DataFrame
 
 from .bitcoin import fetch as btc_fetch, KlineResponse
@@ -9,7 +13,12 @@ from .fng import fetch as fng_fetch, FngResponse
 from .fed_fund import fetch as fed_rate_fetch, FedFundResponse
 
 from Data import target_labels
+from Sentiment import SentimentResponse
 from Utils import convert_to_dataclass
+
+
+# This is necessary for FedRate due to limits of AlphaVantage
+cur_fed_rate: dict | None = None
 
 
 @dataclass
@@ -33,6 +42,20 @@ class Observation:
     fng: int
     fed_rate: float
 
+    def _to_def(self) -> DataFrame:
+        """
+
+        Returns:
+            Observer object as an un-tampered DataFrame.
+
+        """
+        df: DataFrame = DataFrame(
+            {k: [v] for k, v in asdict(self).items()},
+        )
+        df.set_index("timestamp", inplace=True)
+
+        return df
+
     def to_df(self) -> DataFrame:
         """
 
@@ -41,22 +64,51 @@ class Observation:
 
         """
 
-        df: DataFrame = DataFrame(
-            {k: [v] for k, v in asdict(self).items()},
-        )
+        df: DataFrame = self._to_def()
         df.drop(target_labels, axis=1, inplace=True)
-        df.set_index("timestamp", inplace=True)
 
         return df
 
+    def to_train_df(self, logistic: bool = False) -> tuple[DataFrame, DataFrame | ndarray]:
+        """
 
-def observe() -> Observation:
+        Args:
+            logistic: If True treats the data for use in logistic regression.
+
+        Returns:
+            The separated X and Y components as DataFrames
+
+        """
+        df: DataFrame = self._to_def()
+
+        if logistic:
+            return df.drop(target_labels, axis=1), ravel(
+                (df['open'] - df['close']).map(lambda v: -1 if v < 0 else int(0 < v))
+            )
+
+        return df.drop(target_labels, axis=1), df[target_labels]
+
+    def apply_sentiment(self, sentiment: SentimentResponse) -> None:
+        """
+
+        Args:
+            sentiment: Sentiment to apply to observation.
+
+        """
+        pass
+
+
+def observe(fed_rate: bool = False) -> tuple[Observation, Observation]:
     """
+
+    Args:
+        fed_rate: True to observe the federal rate as well.
 
     Returns:
         The current observed state of the parameters
 
     """
+    global cur_fed_rate
 
     # For documentation https://docs.python.org/3/library/concurrent.futures.html
     # Note that another viable option is the use grequests
@@ -66,21 +118,30 @@ def observe() -> Observation:
                 btc_fetch,
                 dxy_fetch,
                 fng_fetch,
-                fed_rate_fetch,
+            ) + (
+                (fed_rate_fetch,) if fed_rate or cur_fed_rate is None else ()
             )
         )
 
         # Wait for all the threads to finish
         wait(res)
 
-        btc_res: KlineResponse = res[0].result()[-1]
+        prev_btc_res, cur_btc_res = res[0].result()
         dxy_res: DxyResponse = res[1].result()
         fng_res: FngResponse = res[2].result()
-        fed_rate_res: FedFundResponse = res[3].result()
+        fed_rate_res: FedFundResponse = res[3].result() if fed_rate or cur_fed_rate is None \
+            else cur_fed_rate
 
-        return convert_to_dataclass(Observation, {
+        temp: dict = {
             **asdict(dxy_res),
             **asdict(fng_res),
             **asdict(fed_rate_res),
-            **asdict(btc_res)
+        }
+
+        return convert_to_dataclass(Observation, {
+            **temp,
+            **asdict(prev_btc_res)
+        }), convert_to_dataclass(Observation, {
+            **temp,
+            **asdict(cur_btc_res)
         })
