@@ -1,9 +1,12 @@
 from functools import reduce
-from os import path
-from pandas import merge, DataFrame, read_parquet
+from pandas import merge
 
 from .cleaner import *
 from .io import save_parquet, dir_path
+
+
+# List of target labels
+target_labels: list[str] = ['close', 'high', 'low']
 
 
 def get_data(refresh: bool = False) -> DataFrame:
@@ -63,7 +66,7 @@ def get_split_data(refresh: bool = False) -> tuple[DataFrame, DataFrame]:
         The merged DataFrame split into X and Y DataFrames.
 
     """
-    target_labels: list[str] = ['high', 'low', 'close']
+    global target_labels
 
     df: DataFrame = get_data(refresh)
 

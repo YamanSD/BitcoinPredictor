@@ -30,17 +30,17 @@ def fetch() -> list[KlineResponse]:
     Fetch the latest current-minute-interval information.
 
     Returns:
-        The latest 5-minute BTC KlineResponses.
+        The latest 2-minute BTC KlineResponses.
 
     """
 
+    # Do not use proxies, Binance does not accept it sometimes due to WAF
     data: list[list] = get(
-        f"{config.binance.endpoint}/klines",
-        proxies=config.proxies,
+        f"{config.binance.url}/klines",
         params={
             'symbol': "BTCUSDT",
             'interval': '1m',
-            'limit': 5
+            'limit': 2
         }
     ).json()
 

@@ -30,7 +30,7 @@ def fetch() -> FedFundResponse:
 
     """
 
-    # Do not use proxies, AlphaVantage does not accept it
+    # Do not use proxies, AlphaVantage does not accept it (probably due to WAF)
     data: dict = get(
         config.alpha_vantage.url,
         params={

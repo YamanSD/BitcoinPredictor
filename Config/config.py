@@ -39,9 +39,9 @@ class FearGreedConfig:
     Class used for Fear & Greed Index configuration.
 
 
-    historical_url: URL used to obtain historic data.
+    historical_url: API URL used to obtain historic data.
 
-    live_url: URL used to obtain live data.
+    live_url: API URL used to obtain live data.
     """
     historical_url: str
     live_url: str
@@ -66,9 +66,9 @@ class BinanceConfig:
     Class used for Binance API configuration.
 
 
-    endpoint: API endpoint. Does not need a key.
+    url: API URL endpoint. Does not need a key.
     """
-    endpoint: str
+    url: str
 
 
 @dataclass(frozen=True)

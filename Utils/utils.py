@@ -19,7 +19,7 @@ def convert_to_dataclass(cls: Type, d: dict) -> Any:
         Instance of cls containing the given data in d.
 
     """
-    return make_dataclass(cls.__name__, ((k, type(v)) for k, v in d.items()))(**d)
+    return cls(**d)
 
 
 def read_json(path: str) -> dict | list:

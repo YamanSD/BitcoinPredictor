@@ -5,9 +5,11 @@ from sklearn.experimental import enable_halving_search_cv  # noqa To use Halving
 from sklearn.linear_model import ElasticNet
 from sklearn.metrics import r2_score
 from sklearn.model_selection import train_test_split, TimeSeriesSplit, HalvingGridSearchCV
+from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 
 from Data import get_split_data
+
 
 # Directory path
 dir_path: str = path.dirname(path.realpath(__file__))
@@ -16,61 +18,50 @@ dir_path: str = path.dirname(path.realpath(__file__))
 save_file: str = "elr_model"
 
 
-def scale(df: DataFrame, scaler: StandardScaler = None) -> DataFrame:
-    """
-
-    Args:
-        df: DataFrame to scale.
-        scaler: Optional StandardScaler to use.
-
-    Returns:
-        A scaled DataFrame suitable for use of predictions by the model.
-
-    """
-
-    if scaler is None:
-        scaler = StandardScaler().set_output(transform="pandas")
-
-    return scaler.transform(df)
-
-
-def simple_train(x_test: DataFrame, x_train: DataFrame, y_train: DataFrame) -> tuple[HalvingGridSearchCV, DataFrame]:
+def simple_train(
+        x_test: DataFrame,
+        x_train: DataFrame,
+        y_train: DataFrame,
+        verbose: bool = False
+) -> tuple[Pipeline, DataFrame]:
     """
 
     Args:
         x_test: X_test dataset.
         x_train: X_train dataset.
         y_train: Y_train dataset.
+        verbose: True to make the training verbose.
 
     Returns:
-        The model along with the predicted dataframe.
+        The model pipline along with the predicted dataframe.
 
     """
 
-    # Scale the numeric features (all the features in our case)
-    scaler: StandardScaler = StandardScaler().set_output(transform="pandas")
-
-    # Create a dictionary containing potential values of alpha
+    # Create a dictionary containing potential values of alpha and l1
     alpha_values: dict = {
         'alpha': [0.00005, 0.0005, 0.001, 0.01, 0.05, 0.06, 0.08, 1, 2, 3, 5, 8, 10, 20, 50, 100],
         'l1_ratio': [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 1]
     }
 
-    x_train = scaler.fit_transform(x_train)
-    x_test = scale(x_test, scaler)
-
-    elastic: HalvingGridSearchCV = HalvingGridSearchCV(
-        ElasticNet(),
-        alpha_values,
-        scoring='neg_mean_squared_error',
-        cv=10,
-        verbose=3
-    )
+    # Scale the numeric features (all the features in our case), and then pass to model
+    pipeline: Pipeline = Pipeline([
+        ('scaler', StandardScaler().set_output(transform="pandas")),
+        (
+            'model',
+            HalvingGridSearchCV(
+                ElasticNet(),
+                alpha_values,
+                scoring='neg_mean_squared_error',
+                cv=10,
+                verbose=3 if verbose else 0
+            )
+        )
+    ])
 
     # Check https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.HalvingRandomSearchCV.html
-    elastic.fit(x_train, y_train)
+    pipeline.fit(x_train, y_train)
 
-    return elastic, DataFrame(elastic.predict(x_test), columns=["high", "low", "close"])
+    return pipeline, DataFrame(pipeline.predict(x_test), columns=["high", "low", "close"])
 
 
 def test(n: int) -> list[int]:
@@ -101,13 +92,14 @@ def test(n: int) -> list[int]:
     return res
 
 
-def train(no_save: bool = False) -> (ElasticNet, float):
+def train(*, no_save: bool = False, verbose: bool = False) -> tuple[Pipeline, float]:
     """
 
     Trains the model and saves it to its designated file.
 
     Args:
         no_save: True to not save the trained model.
+        verbose: True to make the training step verbose.
 
     Returns:
         The trained model along with its R2 score.
@@ -118,16 +110,16 @@ def train(no_save: bool = False) -> (ElasticNet, float):
 
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, shuffle=False)
 
-    regressor, y_pred = simple_train(X_test, X_train, y_train)
+    pipeline, y_pred = simple_train(X_test, X_train, y_train, verbose)
 
     # Evaluate the model
     if not no_save:
-        dump(regressor, path.join(dir_path, f"{save_file}.sav"))
+        dump(pipeline, path.join(dir_path, f"{save_file}.sav"))
 
-    return regressor, r2_score(y_test, y_pred)
+    return pipeline, r2_score(y_test, y_pred)
 
 
-def load() -> ElasticNet:
+def load() -> Pipeline:
     """
 
     Returns:

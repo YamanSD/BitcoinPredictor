@@ -1,11 +1,3 @@
-import asyncio
-
-from sklearn.metrics import r2_score
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler
-from matplotlib import pyplot as plt
-from time import time
-
 try:
     from colorama import just_fix_windows_console
 except ImportError:
@@ -13,14 +5,41 @@ except ImportError:
     def just_fix_windows_console():
         return
 
+from concurrent.futures import ThreadPoolExecutor, wait, Future
+from threading import Thread
+from typing import Any, Callable
 from pandas import options, DataFrame
+from sklearn.pipeline import Pipeline
 
-from Config import config
-from Data import get_data
-import Sentiment
-from Observer import *
-from Utils import every
 import Train
+from Config import config
+from Observer import observe, Observation
+from Sentiment import general_sentiment, SentimentResponse
+from Utils import every
+
+
+def run(model: Pipeline) -> None:
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        res: tuple[Future, ...] = tuple(
+            executor.submit(f) for f in (
+                observe,
+                general_sentiment
+            )
+        )
+
+        # Wait for the threads
+        wait(res)
+
+        observation: Observation = res[0].result()
+        sentiment: SentimentResponse = res[1].result()
+
+    y_pred = model.predict(
+        observation.to_df()
+    )
+
+    print(observation)
+    print("-----------------------------------")
+    print(y_pred)
 
 
 def main() -> None:
@@ -28,94 +47,10 @@ def main() -> None:
     just_fix_windows_console()
     options.display.max_columns = None
 
-    # output = query(SentimentRequest(
-    #     inputs=["Bitcoin is a scam LOL. Fell 40% overnight.", "Bitcoin skyrocketed to 50k!"],
-    # ))
-    #
-    # print(type(output), output)
+    model: Pipeline = Train.lr_load()
 
-    # l = asyncio.run(spider.query_text(
-    #     keywords="What is an apple",
-    #     max_results=1028,
-    # ))
-    # print(len(l))
-
-    # t = loader.load_dxy()
-    # print(t, type(t))
-
-    # df = load_clean_dxy()
-    # dfb = load_clean_bitcoin()
-    # print(df.shape, dfb.shape)
-    # df = get_data()
-    #
-    # print(df.shape)
-    # print(df.columns)
-    # X, y = get_split_data()
-    # scaler: StandardScaler = StandardScaler().set_output(transform="pandas")
-    # X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, shuffle=False)
-    #
-    # X_train = scaler.fit_transform(X_train)
-    # X_test = scaler.transform(X_test)
-    #
-    # # print(lr_test(4))    print(m)
-    # m = elr_load()
-    # y_pred = DataFrame(m.predict(X_test), columns=["high", "low", "close"])
-    # print(r2_score(y_test, y_pred))
-    #
-    # plt.plot(X_test.index, y_pred["close"], color='r')
-    # plt.plot(X_test.index, y_test["close"], color='g')
-    # plt.savefig("g.svg")
-
-    # BTC
-    # FNG
-    # Federal Fund
-    # DXY
-    # Sentiment
-
-    # number_of_trades
-    # quote_asset_volume
-    # taker_buy_base_asset_volume
-    # taker_buy_quote_asset_volume
-    # m = Train.lgr_train()
-    # https://livecoinwatch.github.io/lcw-api-docs/#coinscontract
-    # get_data(True)
-    # m = Train.lgr_train()
-    # print(m[1])
-
-    # , 'taker_buy_base_asset_volume', 'taker_buy_quote_asset_volume'
-
-    # print(
-    #     df[['number_of_trades']]
-    # )
-    # print((df['volume'] / df['close']))
-    # t0 = time()
-    # d = observe()
-    # t1 = time()
-    #
-    # # 7.739626884460449
-    # print(d, t1 - t0)
-
-    # print(
-    #     Sentiment.query(
-    #         Sentiment.SentimentRequest([
-    #             "bitcoin sentiment news",
-    #             "BITCOIN TO THE MOON, 100K!!",
-    #             "We lost it all, this market is a turmoil"
-    #         ])
-    #     )
-    # )
-
-    # s = asyncio.run(Sentiment.general_sentiment())
-    #
-    # print(s)
-    # TODO reformat documentation
-
-    # m = Train.lr_train()
-
-    t = every(5, print, "hello world")
-    s = every(4, print, "hello back!")
-    t.start()
-    s.start()
+    # t: Thread = every(30, run, model, Train.lr_scale)
+    run(model)
 
 
 if __name__ == '__main__':

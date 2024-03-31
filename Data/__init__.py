@@ -7,5 +7,5 @@ from .cleaner import load_clean_dxy, \
     clean_fear_greed, \
     load_clean_fear_greed
 
-from .merger import get_data, get_split_data
+from .merger import get_data, get_split_data, target_labels
 from .io import save_parquet

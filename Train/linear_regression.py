@@ -4,9 +4,11 @@ from pandas import DataFrame
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import r2_score
 from sklearn.model_selection import train_test_split, TimeSeriesSplit
+from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 
 from Data import get_split_data
+
 
 # Directory path
 dir_path: str = path.dirname(path.realpath(__file__))
@@ -15,25 +17,10 @@ dir_path: str = path.dirname(path.realpath(__file__))
 save_file: str = "lr_model"
 
 
-def scale(df: DataFrame, scaler: StandardScaler = None) -> DataFrame:
-    """
-
-    Args:
-        df: DataFrame to scale.
-        scaler: Optional StandardScaler to use.
-
-    Returns:
-        A scaled DataFrame suitable for use of predictions by the model.
-
-    """
-
-    if scaler is None:
-        scaler = StandardScaler().set_output(transform="pandas")
-
-    return scaler.transform(df)
-
-
-def simple_train(x_test: DataFrame, x_train: DataFrame, y_train: DataFrame) -> tuple[LinearRegression, DataFrame]:
+def simple_train(
+        x_test: DataFrame,
+        x_train: DataFrame,
+        y_train: DataFrame) -> tuple[Pipeline, DataFrame]:
     """
 
     Args:
@@ -42,21 +29,20 @@ def simple_train(x_test: DataFrame, x_train: DataFrame, y_train: DataFrame) -> t
         y_train: Y_train dataset.
 
     Returns:
-        The model along with the predicted dataframe.
+        The model pipline along with the predicted dataframe.
 
     """
 
-    # Scale the numeric features (all the features in our case)
-    scaler: StandardScaler = StandardScaler().set_output(transform="pandas")
-
-    x_train = scaler.fit_transform(x_train)
-    x_test = scale(x_test, scaler)
+    # Scale the numeric features (all the features in our case), and then pass to model
+    pipeline: Pipeline = Pipeline([
+        ('scaler', StandardScaler().set_output(transform="pandas")),
+        ('model', LinearRegression())
+    ])
 
     # LR model
-    regressor: LinearRegression = LinearRegression()
-    regressor.fit(x_train, y_train)
+    pipeline.fit(x_train, y_train)
 
-    return regressor, DataFrame(regressor.predict(x_test), columns=["high", "low", "close"])
+    return pipeline, DataFrame(pipeline.predict(x_test), columns=["high", "low", "close"])
 
 
 def test(n: int) -> list[float]:
@@ -87,7 +73,7 @@ def test(n: int) -> list[float]:
     return res
 
 
-def train(no_save: bool = False) -> (LinearRegression, float):
+def train(no_save: bool = False) -> tuple[Pipeline, float]:
     """
 
     Trains the model and saves it to its designated file.
@@ -103,16 +89,16 @@ def train(no_save: bool = False) -> (LinearRegression, float):
 
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, shuffle=False)
 
-    regressor, y_pred = simple_train(X_test, X_train, y_train)
+    pipeline, y_pred = simple_train(X_test, X_train, y_train)
 
     # Evaluate the model
     if not no_save:
-        dump(regressor, path.join(dir_path, f"{save_file}.sav"))
+        dump(pipeline, path.join(dir_path, f"{save_file}.sav"))
 
-    return regressor, r2_score(y_test, y_pred)
+    return pipeline, r2_score(y_test, y_pred)
 
 
-def load() -> LinearRegression:
+def load() -> Pipeline:
     """
 
     Returns:
