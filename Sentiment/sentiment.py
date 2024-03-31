@@ -105,10 +105,15 @@ class SentimentRequest:
 
 def query(payload: SentimentRequest) -> list[SentimentResponse]:
     """
-    Queries an NLP sentiment model using its serverless API.
-    :param payload: request to the sentiment model.
-    :return:
+
+    Args:
+        payload: Necessary data to perform the sentiment request.
+
+    Returns:
+        The sentiment of the given inputs according to an NLP model.
+
     """
+
     # For documentation of requests consult: https://docs.python-requests.org/en/latest/user/advanced/
     # For documentation of API check config.json for API link
     return list(
@@ -128,9 +133,13 @@ def query(payload: SentimentRequest) -> list[SentimentResponse]:
 
 async def general_sentiment(keywords: str = "bitcoin sentiment news") -> SentimentResponse:
     """
-    Queries the web for the current general sentiment
-    :param keywords: keywords of the query.
-    :returns: the current general sentiment of the market.
+
+    Args:
+        keywords: Keywords for the sentiment search.
+
+    Returns:
+        The current general sentiment of the market, based on the base NLP query.
+
     """
 
     # Query the web for news

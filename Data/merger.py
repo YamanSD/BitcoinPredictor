@@ -8,10 +8,14 @@ from .io import save_parquet, dir_path
 
 def get_data(refresh: bool = False) -> DataFrame:
     """
-    Returns a DataFrame containing all the necessary data for the model.
 
-    :param refresh: If True recleans the data.
-    :returns: The merged DataFrame of all other DataFrames.
+    Args:
+        refresh: If True, re-cleans the datasets.
+
+    Returns:
+        The merged DataFrame of all other DataFrames.
+        Suitable for use in training.
+
     """
     cl_path: str = path.join(dir_path, "clean.parquet")
 
@@ -51,8 +55,13 @@ def get_data(refresh: bool = False) -> DataFrame:
 
 def get_split_data(refresh: bool = False) -> tuple[DataFrame, DataFrame]:
     """
-    :param refresh: If True recleans the data.
-    :returns: The merged DataFrame split into X and Y DataFrames.
+
+    Args:
+        refresh: If True, recleans the datasets.
+
+    Returns:
+        The merged DataFrame split into X and Y DataFrames.
+
     """
     target_labels: list[str] = ['high', 'low', 'close']
 

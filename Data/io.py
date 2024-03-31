@@ -16,8 +16,15 @@ dir_path: str = path.dirname(path.realpath(__file__))
 
 def load_croissant(dir_name: str) -> DataFrame:
     """
-    Loads the data from the given directory using its metadata.json file.
+
     If not present locally, the dataset is downloaded.
+
+    Args:
+        dir_name: Directory of the CroissantML metadata.json file to load.
+
+    Returns:
+        The loaded DataFrame.
+
     """
 
     # Path to the Data file
@@ -58,6 +65,10 @@ def load_bitcoin() -> DataFrame:
     """
     Loads the bitcoin price Data from 2017 to 2023 and returns it as a DataFrame.
     If not present locally, the dataset is downloaded.
+
+    Returns:
+        DataFrame containing the training BTC data.
+
     """
     return load_croissant("bitcoin")
 
@@ -66,9 +77,11 @@ def load_dxy() -> DataFrame:
     """
     Loads the DXY (US Dollar Index) data from 2017 to 2023 and returns it as a DataFrame.
     If not present locally, the data must be downloaded manually and placed in the dxy folder.
-    """
 
-    # Return the file
+    Returns:
+        DataFrame containing the training DXY data.
+
+    """
     return read_csv(path.join(dir_path, "dxy", "data.csv"))
 
 
@@ -76,8 +89,11 @@ def load_fear_greed() -> DataFrame:
     """
     Loads the Fear and Greed data from 2018 to 2024 and returns it as a DataFrame.
     If not present locally, the data is downloaded from the URL in the config file.
-    """
 
+    Returns:
+        DataFrame containing the training FNG data.
+
+    """
     dir_name: str = "fearGreed"
 
     # Path to the Data file
@@ -111,9 +127,11 @@ def load_fear_greed() -> DataFrame:
 def load_fed_funds() -> DataFrame:
     """
     Loads the US federal funding rate from 1954 to 2024 and returns it as a DataFrame.
-    """
 
-    # Return the file
+    Returns:
+        DataFrame containing the training FederalRate data.
+
+    """
     return read_csv(path.join(dir_path, "fedFunds", "data.csv"))
 
 
@@ -123,23 +141,12 @@ def save_parquet(
         file_name: str = None
 ) -> None:
     """
-    The file is saved as clean.parquet
+    The DataFrame is saved in the appropriate location as a parquet file.
 
-    :param df: DataFrame to save as a Parquet file.
-    :param folder: Folder to save the Parquet file in.
-    :param file_name: Name to save the file as.
+    Args:
+        df: DataFrame to save.
+        folder: Folder to save the file in. From a list of predefined folders.
+        file_name: File name to save the data in, no extension. Default is clean.
+
     """
     df.to_parquet(path.join(dir_path, folder, f"{file_name if file_name else 'clean'}.parquet"))
-
-
-def save_clean_csv(
-        df: DataFrame,
-        folder: Literal['bitcoin', 'dxy', 'fedFunds', 'inflation', 'fearGreed']
-) -> None:
-    """
-    The file is saved as clean.csv
-
-    :param df: DataFrame to save as a CSV file.
-    :param folder: Folder to save the CSV file in.
-    """
-    df.to_csv(path.join(dir_path, folder, "clean.csv"))

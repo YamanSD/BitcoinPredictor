@@ -12,14 +12,20 @@ from Data import get_split_data
 # Directory path
 dir_path: str = path.dirname(path.realpath(__file__))
 
+# Name of the model file, without extension
+save_file: str = "elr_model"
+
 
 def scale(df: DataFrame, scaler: StandardScaler = None) -> DataFrame:
     """
-    Scales the given data set to make it suitable for use in prediction.
 
-    :param df: DataFrame to scale.
-    :param scaler: Custom standard scaler to use.
-    :returns: the scaled DataFrame.
+    Args:
+        df: DataFrame to scale.
+        scaler: Optional StandardScaler to use.
+
+    Returns:
+        A scaled DataFrame suitable for use of predictions by the model.
+
     """
 
     if scaler is None:
@@ -28,13 +34,19 @@ def scale(df: DataFrame, scaler: StandardScaler = None) -> DataFrame:
     return scaler.transform(df)
 
 
-def simple_train(X_test: DataFrame, X_train: DataFrame, y_train: DataFrame) -> tuple[HalvingGridSearchCV, DataFrame]:
+def simple_train(x_test: DataFrame, x_train: DataFrame, y_train: DataFrame) -> tuple[HalvingGridSearchCV, DataFrame]:
     """
-    :param X_test: X testing data frame.
-    :param X_train: X training data frame.
-    :param y_train: Y training data frame.
-    :returns: The model with the predicted dataframe.
+
+    Args:
+        x_test: X_test dataset.
+        x_train: X_train dataset.
+        y_train: Y_train dataset.
+
+    Returns:
+        The model along with the predicted dataframe.
+
     """
+
     # Scale the numeric features (all the features in our case)
     scaler: StandardScaler = StandardScaler().set_output(transform="pandas")
 
@@ -44,8 +56,8 @@ def simple_train(X_test: DataFrame, X_train: DataFrame, y_train: DataFrame) -> t
         'l1_ratio': [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 1]
     }
 
-    X_train = scaler.fit_transform(X_train)
-    X_test = scale(X_test, scaler)
+    x_train = scaler.fit_transform(x_train)
+    x_test = scale(x_test, scaler)
 
     elastic: HalvingGridSearchCV = HalvingGridSearchCV(
         ElasticNet(),
@@ -56,18 +68,22 @@ def simple_train(X_test: DataFrame, X_train: DataFrame, y_train: DataFrame) -> t
     )
 
     # Check https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.HalvingRandomSearchCV.html
-    elastic.fit(X_train, y_train)
+    elastic.fit(x_train, y_train)
 
-    return elastic, DataFrame(elastic.predict(X_test), columns=["high", "low", "close"])
+    return elastic, DataFrame(elastic.predict(x_test), columns=["high", "low", "close"])
 
 
 def test(n: int) -> list[int]:
     """
-    Tests the simple_train function on k-cross validation.
 
-    :param n: Number of iterations.
-    :return: A list of R2 scores for each iteration.
+    Args:
+        n: Number of K-Folds to perform.
+
+    Returns:
+        List of R2 scores for each iteration.
+
     """
+
     X, y = get_split_data()
     res: list[int] = []
 
@@ -85,7 +101,19 @@ def test(n: int) -> list[int]:
     return res
 
 
-def train() -> (ElasticNet, float):
+def train(no_save: bool = False) -> (ElasticNet, float):
+    """
+
+    Trains the model and saves it to its designated file.
+
+    Args:
+        no_save: True to not save the trained model.
+
+    Returns:
+        The trained model along with its R2 score.
+
+    """
+
     X, y = get_split_data()
 
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, shuffle=False)
@@ -93,13 +121,17 @@ def train() -> (ElasticNet, float):
     regressor, y_pred = simple_train(X_test, X_train, y_train)
 
     # Evaluate the model
-    dump(regressor, path.join(dir_path, "elr_model.sav"))
+    if not no_save:
+        dump(regressor, path.join(dir_path, f"{save_file}.sav"))
 
     return regressor, r2_score(y_test, y_pred)
 
 
 def load() -> ElasticNet:
     """
-    :returns: The loaded model.
+
+    Returns:
+        The loaded model from the designated file.
+
     """
-    return jload(path.join(dir_path, "elr_model.sav"))
+    return jload(path.join(dir_path, f"{save_file}.sav"))

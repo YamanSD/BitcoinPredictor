@@ -1,5 +1,4 @@
 from joblib import dump, load as jload
-from matplotlib import pyplot as plt
 from os import path
 
 from numpy import ravel, ndarray
@@ -14,14 +13,20 @@ from Data import get_data
 # Directory path
 dir_path: str = path.dirname(path.realpath(__file__))
 
+# Name of the model file, without extension
+save_file: str = "lgr_model"
+
 
 def scale(df: DataFrame, scaler: StandardScaler = None) -> DataFrame:
     """
-    Scales the given data set to make it suitable for use in prediction.
 
-    :param df: DataFrame to scale.
-    :param scaler: Custom standard scaler to use.
-    :returns: the scaled DataFrame.
+    Args:
+        df: DataFrame to scale.
+        scaler: Optional StandardScaler to use.
+
+    Returns:
+        A scaled DataFrame suitable for use of predictions by the model.
+
     """
 
     if scaler is None:
@@ -32,7 +37,10 @@ def scale(df: DataFrame, scaler: StandardScaler = None) -> DataFrame:
 
 def get_split_data() -> tuple[DataFrame, ndarray]:
     """
-    :returns: Properly split data for logistic regression
+
+    Returns:
+        Overrides the usual split, due to the single-dependent-variable nature of LogisticRegression.
+
     """
     df: DataFrame = get_data()
 
@@ -46,11 +54,17 @@ def get_split_data() -> tuple[DataFrame, ndarray]:
 
 def simple_train(x_test: DataFrame, x_train: DataFrame, y_train: DataFrame) -> tuple[LogisticRegression, DataFrame]:
     """
-    :param x_test: X testing data frame.
-    :param x_train: X training data frame.
-    :param y_train: Y training data frame.
-    :returns: The model with the predicted dataframe.
+
+    Args:
+        x_test: X_test dataset.
+        x_train: X_train dataset.
+        y_train: Y_train dataset.
+
+    Returns:
+        The model along with the predicted dataframe.
+
     """
+
     # Scale the numeric features (all the features in our case)
     scaler: StandardScaler = StandardScaler().set_output(transform="pandas")
 
@@ -66,11 +80,15 @@ def simple_train(x_test: DataFrame, x_train: DataFrame, y_train: DataFrame) -> t
 
 def test(n: int) -> list[float]:
     """
-    Tests the simple_train function on k-cross validation.
 
-    :param n: Number of iterations.
-    :return: A list of R2 scores for each iteration.
+    Args:
+        n: Number of K-Folds to perform.
+
+    Returns:
+        List of accuracy scores for each iteration.
+
     """
+
     X, y = get_split_data()
     res: list[float] = []
 
@@ -88,10 +106,17 @@ def test(n: int) -> list[float]:
     return res
 
 
-def train(plot: bool = False) -> (LogisticRegression, float):
+def train(no_save: bool = False) -> (LogisticRegression, float):
     """
-    :param plot: If true, y_pred and y_test are plotted.
-    :returns: The trained model along with its R2 score.
+
+    Trains the model and saves it to its designated file.
+
+    Args:
+        no_save: True to not save the trained model.
+
+    Returns:
+        The trained model along with its accuracy score.
+
     """
     X, y = get_split_data()
 
@@ -100,18 +125,17 @@ def train(plot: bool = False) -> (LogisticRegression, float):
     regressor, y_pred = simple_train(X_test, X_train, y_train)
 
     # Evaluate the model
-    dump(regressor, path.join(dir_path, "lgr_model.sav"))
-
-    if plot:
-        plt.plot(X_test.index, y_test['direction'], color='r')
-        plt.plot(X_test.index, y_pred['direction'], color='g')
-        plt.show()
+    if not no_save:
+        dump(regressor, path.join(dir_path, f"{save_file}.sav"))
 
     return regressor, accuracy_score(y_test, y_pred)
 
 
 def load() -> LogisticRegression:
     """
-    :returns: The loaded model.
+
+    Returns:
+        The loaded model from the designated file.
+
     """
-    return jload(path.join(dir_path, "lgr_model.sav"))
+    return jload(path.join(dir_path, f"{save_file}.sav"))

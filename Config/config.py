@@ -110,9 +110,15 @@ class Config:
 
 def load_config(path: str) -> Config:
     """
+
     Reads the given JSON config file.
-    :param path: Path to JSON config.
-    :return:
+
+    Args:
+        path: Path to the config file.
+
+    Returns:
+        The loaded config object.
+
     """
     data: dict = read_json(path)
 

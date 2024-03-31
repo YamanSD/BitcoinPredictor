@@ -160,16 +160,22 @@ async def query_news(
         region: Region = 'wt-wt',
 ) -> list[SpiderNewsResponse]:
     """
+
     Queries DuckDuckGo for news results.
 
-    :param keywords: Search term of spider.
-    :param max_results: Number of maximum results.
-    :param timelimit: d for day, w for week, m for month, or use bounds for search from time to time.
-    :param safe_search: on, moderate, or off.
-    :param region: Search region.
+    Args:
+        keywords: Search term of spider.
+        max_results: Number of maximum results.
+        timelimit: d for day, w for week, m for month, or use bounds for search from time to time.
+        safe_search: on, moderate, or off.
+        region: Search region.
 
-    :raises: DuckDuckGoSearchException: Raised when there is a generic exception during the API request.
-    :return:
+    Returns:
+        List of responses.
+
+    Raises:
+        DuckDuckGoSearchException: Raised when there is a generic exception during the API request.
+
     """
     return list(
         map(
@@ -199,16 +205,23 @@ async def query_text(
         region: Region = 'wt-wt',
 ) -> list[SpiderTextResponse]:
     """
+
     Queries DuckDuckGo for text results.
 
-    :param keywords: Search term of spider.
-    :param max_results: Number of maximum results.
-    :param timelimit: d for day, w for week, m for month, or use bounds for search from time to time.
-    :param safe_search: on, moderate, or off.
-    :param region: Search region.
 
-    :raises: DuckDuckGoSearchException: Raised when there is a generic exception during the API request.
-    :return:
+    Args:
+        keywords: Search term of spider.
+        max_results: Number of maximum results.
+        timelimit: d for day, w for week, m for month, or use bounds for search from time to time.
+        safe_search: on, moderate, or off.
+        region: Search region.
+
+    Returns:
+        List of responses.
+
+    Raises:
+        DuckDuckGoSearchException: Raised when there is a generic exception during the API request.
+
     """
     return list(
         map(
@@ -248,21 +261,27 @@ async def query_images(
         region: Region = 'wt-wt',
 ) -> list[SpiderImageResponse]:
     """
-    Queries DuckDuckGo for video results.
 
-    :param keywords: Search term of spider.
-    :param max_results: Number of maximum results.
-    :param size: size of the image.
-    :param color: color of the image.
-    :param type_image: type of the image.
-    :param license_image: license of the image.
-    :param layout: shape of the image dimensions.
-    :param timelimit: d for day, w for week, m for month, or use bounds for search from time to time.
-    :param safe_search: on, moderate, or off.
-    :param region: Search region.
+    Queries DuckDuckGo for image results.
 
-    :raises: DuckDuckGoSearchException: Raised when there is a generic exception during the API request.
-    :return:
+    Args:
+        keywords: Search term of spider.
+        max_results: Number of maximum results.
+        timelimit: d for day, w for week, m for month, or use bounds for search from time to time.
+        size: Size of the image.
+        color: Color of the image.
+        type_image: Type of the image.
+        layout: Shape of the image dimensions.
+        license_image: License of the image.
+        safe_search: on, moderate, or off.
+        region: Search region.
+
+    Returns:
+        List of responses.
+
+    Raises:
+        DuckDuckGoSearchException: Raised when there is a generic exception during the API request.
+
     """
     return list(
         map(
@@ -294,19 +313,25 @@ async def query_videos(
         region: Region = 'wt-wt',
 ) -> list[SpiderVideoResponse]:
     """
+
     Queries DuckDuckGo for video results.
 
-    :param keywords: Search term of spider.
-    :param max_results: Number of maximum results.
-    :param resolution: resolution of the videos.
-    :param duration: duration of the videos.
-    :param license_videos: licence of the videos.
-    :param timelimit: d for day, w for week, m for month, or use bounds for search from time to time.
-    :param safe_search: on, moderate, or off.
-    :param region: Search region.
+    Args:
+        keywords: Search term of spider.
+        max_results: Number of maximum results.
+        timelimit: d for day, w for week, m for month, or use bounds for search from time to time.
+        resolution: Resolution of the videos.
+        duration: Duration of the videos.
+        license_videos: Licence of the videos.
+        safe_search: on, moderate, or off.
+        region: Search region.
 
-    :raises: DuckDuckGoSearchException: Raised when there is a generic exception during the API request.
-    :return:
+    Returns:
+        List of responses.
+
+    Raises:
+        DuckDuckGoSearchException: Raised when there is a generic exception during the API request.
+
     """
     return list(
         map(
@@ -339,14 +364,20 @@ async def query_translate(
         to_lang: str = "en"
 ) -> list[SpiderTranslateResponse]:
     """
+
     Queries DuckDuckGo for translation results.
 
-    :param keywords: Search term of spider.
-    :param from_lang: Language to translate from.
-    :param to_lang: language to translate to.
+    Args:
+        keywords: Search term of spider.
+        from_lang: Language to translate from.
+        to_lang: Language to translate to.
 
-    :raises: DuckDuckGoSearchException: Raised when there is a generic exception during the API request.
-    :return:
+    Returns:
+        The translation.
+
+    Raises:
+        DuckDuckGoSearchException: Raised when there is a generic exception during the API request.
+
     """
     return list(
         map(
@@ -365,13 +396,19 @@ async def query_suggestions(
         region: Region = "wt-wt"
 ) -> list[SpiderSuggestionResponse]:
     """
+
     Queries DuckDuckGo for suggestion results.
 
-    :param keywords: Search term of spider.
-    :param region: Region of the suggestions.
+    Args:
+        keywords: Search term of spider.
+        region: Region of the suggestions.
 
-    :raises: DuckDuckGoSearchException: Raised when there is a generic exception during the API request.
-    :return:
+    Returns:
+        DuckDuckGo Suggestion.
+
+    Raises:
+        DuckDuckGoSearchException: Raised when there is a generic exception during the API request.
+
     """
     return list(
         map(

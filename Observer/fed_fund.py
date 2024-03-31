@@ -21,11 +21,13 @@ class FedFundResponse:
 
 def fetch() -> FedFundResponse:
     """
+
     https://www.alphavantage.co/documentation/
     Fetch the latest Federal Funds information.
 
+    Returns:
+        The latest Federal Interest response.
 
-    :returns: The latest Federal Interest response.
     """
 
     # Do not use proxies, AlphaVantage does not accept it

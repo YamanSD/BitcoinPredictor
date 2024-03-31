@@ -17,11 +17,13 @@ class DxyResponse:
 
 def fetch() -> DxyResponse:
     """
+
     https://pypi.org/project/yfinance/
     Fetch the latest current-minute-interval information.
 
+    Returns:
+        The latest DXY response.
 
-    :returns: The latest DXY response.
     """
 
     dxy: Ticker = Ticker("DX-Y.NYB", proxy=config.proxies['https'])

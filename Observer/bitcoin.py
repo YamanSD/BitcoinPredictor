@@ -25,11 +25,13 @@ class KlineResponse:
 
 def fetch() -> list[KlineResponse]:
     """
+
     https://binance-docs.github.io/apidocs/spot/en/#kline-candlestick-data
     Fetch the latest current-minute-interval information.
 
+    Returns:
+        The latest 5-minute BTC KlineResponses.
 
-    :returns: The latest 5 minute KlineResponse.
     """
 
     data: list[list] = get(

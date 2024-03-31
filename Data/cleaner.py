@@ -9,8 +9,12 @@ from .io import load_fed_funds, load_bitcoin, load_dxy, \
 
 def clean_bitcoin() -> tuple[DataFrame, dict]:
     """
+
     Cleans the Bitcoin dataset and saves it.
-    :returns: the cleaned DataFrame along with cleaning statistics.
+
+    Returns:
+        DataFrame containing the cleaned BTC data.
+
     """
     df: DataFrame = load_bitcoin()
     stats: dict = {}
@@ -76,8 +80,12 @@ def clean_bitcoin() -> tuple[DataFrame, dict]:
 
 def clean_dxy() -> DataFrame:
     """
+
     Cleans the DXY dataset and saves it.
-    :returns: the cleaned DataFrame.
+
+    Returns:
+        DataFrame containing the cleaned DXY data.
+
     """
 
     # Timestamp column name
@@ -114,8 +122,12 @@ def clean_dxy() -> DataFrame:
 
 def clean_fed_funds() -> DataFrame:
     """
+
     Cleans the federal funds dataset and saves it.
-    :returns: the cleaned DataFrame.
+
+    Returns:
+        DataFrame containing the cleaned FedRate data.
+
     """
 
     # Timestamp column name
@@ -149,8 +161,12 @@ def clean_fed_funds() -> DataFrame:
 
 def clean_fear_greed() -> DataFrame:
     """
+
     Cleans the fear and greed dataset and saves it.
-    :returns: the cleaned DataFrame.
+
+    Returns:
+        DataFrame containing the cleaned FNG data.
+
     """
 
     # Timestamp column name
@@ -198,7 +214,12 @@ def clean_fear_greed() -> DataFrame:
 
 def load_clean_fear_greed() -> DataFrame:
     """
+
     Loads the cleaned fear and greed index from 2017 to 2023 and returns it as a DataFrame.
+
+    Returns:
+        DataFrame containing the cleaned FNG data.
+
     """
     cl_path: str = path.join(dir_path, "fearGreed", "clean.parquet")
 
@@ -211,7 +232,12 @@ def load_clean_fear_greed() -> DataFrame:
 
 def load_clean_fed_funds() -> DataFrame:
     """
+
     Loads the cleaned US federal funding rate from 2017 to 2023 and returns it as a DataFrame.
+
+    Returns:
+        DataFrame containing the cleaned FedRate data.
+
     """
     cl_path: str = path.join(dir_path, "fedFunds", "clean.parquet")
 
@@ -224,8 +250,13 @@ def load_clean_fed_funds() -> DataFrame:
 
 def load_clean_dxy() -> DataFrame:
     """
+
     Loads the cleaned DXY (US Dollar Index) data from 2017 to 2023 and returns it as a DataFrame.
     If not present locally, the data must be downloaded manually and placed in the dxy folder.
+
+    Returns:
+        DataFrame containing the cleaned DXY data.
+
     """
     cl_path: str = path.join(dir_path, "dxy", "clean.parquet")
 
@@ -238,8 +269,13 @@ def load_clean_dxy() -> DataFrame:
 
 def load_clean_bitcoin() -> DataFrame:
     """
+
     Loads the clean bitcoin price Data from 2017 to 2023 and returns it as a DataFrame.
-    If not present, the data is cleaned.
+    If not present, the data is downloaded and cleaned.
+
+    Returns:
+        DataFrame containing the cleaned BTC data.
+
     """
     cl_path: str = path.join(dir_path, "bitcoin", "clean.parquet")
 

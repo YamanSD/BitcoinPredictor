@@ -17,10 +17,12 @@ class FngResponse:
 
 def fetch() -> FngResponse:
     """
-    Fetch the latest current FNG information.
+    Fetch the latest FNG information.
 
 
-    :returns: The latest FNG information.
+    Returns:
+        The latest FNG information.
+
     """
 
     data: dict = get(
