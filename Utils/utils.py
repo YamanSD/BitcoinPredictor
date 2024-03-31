@@ -77,6 +77,7 @@ def every(delay: float | int, task: Callable, *args: Any, **kwargs: Any) -> None
             task(*args, **kwargs)
         except Exception:
             print_exc()
+            exit(1)
 
         # skip tasks if we are behind schedule:
         next_time += (time() - next_time) // delay * delay + delay

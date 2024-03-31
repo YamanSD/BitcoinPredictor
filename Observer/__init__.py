@@ -17,8 +17,8 @@ from Sentiment import SentimentResponse
 from Utils import convert_to_dataclass
 
 
-# This is necessary for FedRate due to limits of AlphaVantage
-cur_fed_rate: dict | None = None
+# Key used by the fed rate observation refresh
+fed_rate_key: str = 'fed_rate'
 
 
 @dataclass
@@ -98,17 +98,17 @@ class Observation:
         pass
 
 
-def observe(fed_rate: bool = False) -> tuple[Observation, Observation]:
+def observe(fed_rate: dict) -> tuple[Observation, Observation]:
     """
 
     Args:
-        fed_rate: True to observe the federal rate as well.
+        fed_rate: Current fed-rate, used when given.
 
     Returns:
         The current observed state of the parameters
 
     """
-    global cur_fed_rate
+    refresh_fed: bool = fed_rate_key not in fed_rate
 
     # For documentation https://docs.python.org/3/library/concurrent.futures.html
     # Note that another viable option is the use grequests
@@ -119,7 +119,7 @@ def observe(fed_rate: bool = False) -> tuple[Observation, Observation]:
                 dxy_fetch,
                 fng_fetch,
             ) + (
-                (fed_rate_fetch,) if fed_rate or cur_fed_rate is None else ()
+                (fed_rate_fetch,) if refresh_fed else ()
             )
         )
 
@@ -129,19 +129,27 @@ def observe(fed_rate: bool = False) -> tuple[Observation, Observation]:
         prev_btc_res, cur_btc_res = res[0].result()
         dxy_res: DxyResponse = res[1].result()
         fng_res: FngResponse = res[2].result()
-        fed_rate_res: FedFundResponse = res[3].result() if fed_rate or cur_fed_rate is None \
-            else cur_fed_rate
+        fed_rate_res: FedFundResponse = res[3].result() if refresh_fed else fed_rate
 
         temp: dict = {
             **asdict(dxy_res),
             **asdict(fng_res),
-            **asdict(fed_rate_res),
+            **(asdict(fed_rate_res) if refresh_fed else fed_rate),
         }
 
-        return convert_to_dataclass(Observation, {
+        # Type declarations
+        prev: Observation
+        cur: Observation
+
+        prev, cur = convert_to_dataclass(Observation, {
             **temp,
             **asdict(prev_btc_res)
         }), convert_to_dataclass(Observation, {
             **temp,
             **asdict(cur_btc_res)
         })
+
+        if refresh_fed:
+            fed_rate[fed_rate_key] = cur.fed_rate
+
+        return prev, cur

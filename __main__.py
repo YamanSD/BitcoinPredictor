@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 try:
     from colorama import just_fix_windows_console
 except ImportError:
@@ -5,26 +7,25 @@ except ImportError:
     def just_fix_windows_console():
         return
 
+import asyncio
 from concurrent.futures import ThreadPoolExecutor, wait, Future
 from threading import Thread
+from time import sleep
 from typing import Callable
 from pandas import options
 from sklearn.pipeline import Pipeline
 
 import Train
 from Config import config
-from Observer import observe, Observation
+from Observer import observe, Observation, fed_rate_key
 from Sentiment import general_sentiment, SentimentResponse
 from Utils import every
-
-
-# Observation for the fed-rate flag
-observe_fed: bool = True
 
 
 def run(
         pipeline: Pipeline,
         callback: Callable,
+        fed_rate: dict,
         logistic: bool = False,
         incremental: bool = False
 ) -> None:
@@ -33,14 +34,13 @@ def run(
     Args:
         pipeline: Model pipeline to use for prediction.
         callback: Callback function that takes the prev-observation, curr-observation, and prediction.
+        fed_rate: Federal rate that is already in use.
         logistic: True for logistic learning.
         incremental: True if the model supports partial fitting
 
     """
-    global observe_fed
-
     with ThreadPoolExecutor(max_workers=2) as executor:
-        observation_fu: Future = executor.submit(observe, observe_fed)
+        observation_fu: Future = executor.submit(observe, fed_rate)
         sentiment_fu: Future = executor.submit(general_sentiment)
 
         # Wait for the threads
@@ -55,7 +55,7 @@ def run(
         sentiment: SentimentResponse = sentiment_fu.result()
 
     # Set back to false
-    observe_fed = False
+    fed_rate[fed_rate_key] = cur_observation.fed_rate
 
     # Incremental learning based on previous candle
     if incremental:
@@ -84,29 +84,32 @@ def save(model: Pipeline) -> None:
     Train.lr_save(model)
 
 
-def set_observe() -> None:
+def set_observe(fed_rate: dict) -> None:
     """
 
     Sets the observation flag.
 
     """
-    global observe_fed
-    observe_fed = True
+    del fed_rate[fed_rate_key]
 
 
-def main() -> None:
+async def main() -> None:
     # Enable ANSI support on Windows
     just_fix_windows_console()
     options.display.max_columns = None
 
     model: Pipeline = Train.lr_load()
     incremental: bool = False
+    fed_rate: dict = {}
 
     fed_t: Thread = every(
-        86_400 / (len(config.alpha_vantage.keys) * config.alpha_vantage.limit),
-        set_observe
+        86_400 // (len(config.alpha_vantage.keys) * config.alpha_vantage.limit),
+        set_observe,
+        fed_rate
     )
-    run_t: Thread = every(60, run, model, print, False, incremental)
+    run_t: Thread = every(
+        60, run, model, lambda a, b, c: print(a, b, c, sep='\n------------------------\n'), fed_rate, False, incremental
+    )
 
     if incremental:
         save_t: Thread = every(config.observer.save, save, model)
@@ -116,6 +119,12 @@ def main() -> None:
     fed_t.start()
     run_t.start()
 
+    # Keeps the interpreter running
+    while True:
+        # Less expensive than pass on CPU
+        sleep(100_000)
+
 
 if __name__ == '__main__':
-    main()
+    # Keeps the interpreter running
+    asyncio.run(main())
