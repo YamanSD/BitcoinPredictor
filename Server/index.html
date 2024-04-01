@@ -4,18 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BP-0</title>
+    <script src="https://cdn.plot.ly/plotly-2.30.0.min.js" charset="utf-8"></script>
+    <link rel="stylesheet" type="text/css" href="./css/styles.css">
 </head>
 <body>
-    <h1>BP-0</h1>
+    <h1 id="title">BP-0</h1>
     <div id="events"></div>
+    <div id="lr_chart"></div>
+    <div id="lgr_chart"></div>
+    <div id="elr_chart"></div>
 
-    <script>
-        const eventsDiv = document.getElementById('events');
-        const eventSource = new EventSource('http://127.0.0.1:8081/events');
-
-        eventSource.onmessage = function(event) {
-            eventsDiv.innerHTML += '<p>New event received: ' + event.data + '</p>';
-        };
-    </script>
+    <script src="./js/main.js"></script>
 </body>
 </html>
