@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import asyncio
 from dataclasses import dataclass, asdict
 from datetime import datetime
 from numpy import average
@@ -144,11 +143,9 @@ def general_sentiment(keywords: str = "bitcoin sentiment news") -> SentimentResp
     """
 
     # Query the web for news
-    news: list[spider.SpiderNewsResponse] = asyncio.run(
-        spider.query_news(
-            keywords,
-            max_results=1_000
-        )
+    news: list[spider.SpiderNewsResponse] = spider.query_news(
+        keywords,
+        max_results=1_000
     )
 
     # Current datetime

@@ -28,3 +28,4 @@ def save(model: Pipeline, file_name: str) -> None:
         file_name: Name of the file to save the model in, without the sav extension.
 
     """
+    dump(model, path.join(dir_path, f"{file_name}.sav"))

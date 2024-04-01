@@ -34,7 +34,7 @@ def simple_train(
 
     """
 
-    # Create a dictionary containing potential values of alpha and l1
+    # Create a dictionary containing potential values of alphas and l1
     alpha_values: dict = {
         'alpha': [0.00005, 0.0005, 0.001, 0.01, 0.05, 0.06, 0.08, 1, 2, 3, 5, 8, 10, 20, 50, 100],
         'l1_ratio': [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 1]
@@ -50,6 +50,8 @@ def simple_train(
                 alpha_values,
                 scoring='neg_mean_squared_error',
                 cv=10,
+                factor=2,
+                n_jobs=-1,
                 verbose=3 if verbose else 0
             )
         )
@@ -76,7 +78,7 @@ def test(n: int) -> list[int]:
     res: list[int] = []
 
     # Assuming your data is in X and y
-    tscv = TimeSeriesSplit(n_splits=n)  # Use the number of splits you prefer
+    tscv = TimeSeriesSplit(n_splits=n)
 
     for train_index, test_index in tscv.split(X):
         X_train, X_test = X.iloc[train_index], X.iloc[test_index]

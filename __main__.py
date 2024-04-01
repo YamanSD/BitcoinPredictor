@@ -1,14 +1,16 @@
 from __future__ import annotations
 
-try:
-    from colorama import just_fix_windows_console
-except ImportError:
-    # Must be defined
-    def just_fix_windows_console():
-        return
-
 import asyncio
-from concurrent.futures import ThreadPoolExecutor, wait, Future
+from os import name as os_name
+
+# Enable ANSI support on Windows & apply asyncio patches
+if os_name == 'nt':
+    from colorama import just_fix_windows_console
+
+    just_fix_windows_console()
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+
+from concurrent.futures import ThreadPoolExecutor, wait
 from threading import Thread
 from time import sleep
 from typing import Callable
@@ -55,24 +57,24 @@ def run(
         prev_observation, cur_observation = observation_fu.result()
         sentiment: SentimentResponse = sentiment_fu.result()
 
-    # Set back to false
-    fed_rate[fed_rate_key] = cur_observation.fed_rate
+        # Set back to false
+        fed_rate[fed_rate_key] = cur_observation.fed_rate
 
-    # Incremental learning based on previous candle
-    if incremental:
-        pipeline.named_steps['model'].partial_fit(
-            *prev_observation.to_train_df(logistic)
+        # Incremental learning based on previous candle
+        if incremental:
+            pipeline.named_steps['model'].partial_fit(
+                *prev_observation.to_train_df(logistic)
+            )
+
+        # Apply the sentiment to the observation
+        cur_observation.apply_sentiment(sentiment)
+
+        y_pred = pipeline.predict(
+            cur_observation.to_df()
         )
 
-    # Apply the sentiment to the observation
-    cur_observation.apply_sentiment(sentiment)
-
-    y_pred = pipeline.predict(
-        cur_observation.to_df()
-    )
-
-    # Callback with the predicted close, high, low
-    callback(prev_observation, cur_observation, y_pred)
+        # Callback with the predicted close, high, low
+        callback(prev_observation, cur_observation, y_pred)
 
 
 def save(model: Pipeline) -> None:
@@ -94,9 +96,7 @@ def set_observe(fed_rate: dict) -> None:
     del fed_rate[fed_rate_key]
 
 
-async def main() -> None:
-    # Enable ANSI support on Windows
-    just_fix_windows_console()
+def main() -> None:
     options.display.max_columns = None
 
     model: Pipeline = Train.lr_load()
@@ -122,10 +122,10 @@ async def main() -> None:
 
     # Keeps the interpreter running
     while True:
-        # Less expensive than pass on CPU
-        sleep(100_000)
+        # Less expensive than a pass statement on CPU
+        sleep(100_000) # Might need to change to 60
 
 
 if __name__ == '__main__':
     # Keeps the interpreter running
-    asyncio.run(main())
+    main()

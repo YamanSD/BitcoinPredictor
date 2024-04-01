@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from dataclasses import make_dataclass
 from threading import Thread
 from time import time, sleep
 from traceback import print_exc

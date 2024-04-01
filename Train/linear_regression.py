@@ -17,7 +17,8 @@ save_file: str = "lr_model"
 def simple_train(
         x_test: DataFrame,
         x_train: DataFrame,
-        y_train: DataFrame) -> tuple[Pipeline, DataFrame]:
+        y_train: DataFrame,
+) -> tuple[Pipeline, DataFrame]:
     """
 
     Args:
@@ -57,7 +58,7 @@ def test(n: int) -> list[float]:
     res: list[float] = []
 
     # Assuming your data is in X and y
-    tscv = TimeSeriesSplit(n_splits=n)  # Use the number of splits you prefer
+    tscv = TimeSeriesSplit(n_splits=n)
 
     for train_index, test_index in tscv.split(X):
         X_train, X_test = X.iloc[train_index], X.iloc[test_index]
