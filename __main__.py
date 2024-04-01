@@ -129,4 +129,6 @@ def main() -> None:
 if __name__ == '__main__':
     # Keeps the interpreter running
     # main()
-    Train.elr_train(verbose=True)
+    m = Train.lr_load().named_steps['model']
+
+    print(m.intercept_)
