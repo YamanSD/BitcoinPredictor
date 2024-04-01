@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SSE Demo</title>
+</head>
+<body>
+    <h1>Server Sent Events (SSE) Demo</h1>
+    <div id="events"></div>
+
+    <script>
+        const eventsDiv = document.getElementById('events');
+        const eventSource = new EventSource('http://127.0.0.1:8081/events');
+
+        eventSource.onmessage = function(event) {
+            eventsDiv.innerHTML += '<p>New event received: ' + event.data + '</p>';
+        };
+    </script>
+</body>
+</html>

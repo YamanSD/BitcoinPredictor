@@ -101,6 +101,17 @@ class ObserverConfig:
 
 
 @dataclass(frozen=True)
+class ServerConfig:
+    """
+    Class used for web server configuration.
+
+
+    port: Port number of the web server.
+    """
+    port: int
+
+
+@dataclass(frozen=True)
 class Config:
     """
     Class used for app configuration.
@@ -112,6 +123,7 @@ class Config:
     binance: BinanceConfig
     alpha_vantage: AlphaVantageConfig
     observer: ObserverConfig
+    server: ServerConfig
 
 
 def load_config(path: str) -> Config:
@@ -137,4 +149,5 @@ def load_config(path: str) -> Config:
         "binance": convert_to_dataclass(BinanceConfig, data['binance']),
         "alpha_vantage": convert_to_dataclass(AlphaVantageConfig, data['alpha_vantage']),
         "observer": convert_to_dataclass(ObserverConfig, data['observer']),
+        "server": convert_to_dataclass(ServerConfig, data['server']),
     })

@@ -25,5 +25,8 @@
   },
   "observer": {
     "save": 3600
+  },
+  "server": {
+    "port": 8081
   }
 }
