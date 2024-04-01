@@ -9,7 +9,6 @@
 !/Data/bitcoin/metadata.json
 /Data/fearGreed/*
 /kaggle.json
-/Train/*.sav
 
 ### JetBrains ###
 # Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm, CLion, Android Studio, WebStorm and Rider
