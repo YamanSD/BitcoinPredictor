@@ -4,7 +4,7 @@ from re import compile as compile_re
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Literal, Annotated
-from duckduckgo_search import AsyncDDGS
+from duckduckgo_search import DDGS
 
 from Config import config
 from Utils import convert_to_dataclass
@@ -53,7 +53,7 @@ DateBound = Annotated[str, compile_re(
 )]
 
 # Handles searching
-browser: AsyncDDGS = AsyncDDGS(
+browser: DDGS = DDGS(
     proxies=config.proxies,
 )
 
@@ -152,7 +152,7 @@ class SpiderTranslateResponse:
     original: str
 
 
-async def query_news(
+def query_news(
         keywords: str,
         max_results: int = 1,
         timelimit: Literal['d', 'w', 'm'] | None = None,
@@ -186,7 +186,7 @@ async def query_news(
                     'date': datetime.strptime(doc['date'], "%Y-%m-%dT%H:%M:%S%z"),
                 }
             ),
-            await browser.news(
+            browser.news(
                 keywords=keywords,
                 max_results=max_results,
                 safesearch=safe_search,
@@ -197,7 +197,7 @@ async def query_news(
     )
 
 
-async def query_text(
+def query_text(
         keywords: str,
         max_results: int = 1,
         timelimit: Literal['d', 'w', 'm'] | tuple[DateBound, DateBound] | None = None,
@@ -226,7 +226,7 @@ async def query_text(
     return list(
         map(
             lambda doc: convert_to_dataclass(SpiderTextResponse, doc),
-            await browser.text(
+            browser.text(
                 keywords=keywords,
                 max_results=max_results,
                 safesearch=safe_search,
@@ -241,7 +241,7 @@ async def query_text(
     )
 
 
-async def query_images(
+def query_images(
         keywords: str,
         max_results: int = 1,
         timelimit: Literal['Day', 'Week', 'Month', 'Year'] | None = None,
@@ -286,7 +286,7 @@ async def query_images(
     return list(
         map(
             lambda doc: convert_to_dataclass(SpiderImageResponse, doc),
-            await browser.images(
+            browser.images(
                 keywords=keywords,
                 layout=layout,
                 license_image=license_image,
@@ -302,7 +302,7 @@ async def query_images(
     )
 
 
-async def query_videos(
+def query_videos(
         keywords: str,
         max_results: int = 1,
         timelimit: Literal['d', 'w', 'm'] | None = None,
@@ -344,7 +344,7 @@ async def query_videos(
                     'published': datetime.strptime(doc['published'][:-1], "%Y-%m-%dT%H:%M:%S.%f"),
                 }
             ),
-            await browser.videos(
+            browser.videos(
                 keywords=keywords,
                 resolution=resolution,
                 duration=duration,
@@ -358,7 +358,7 @@ async def query_videos(
     )
 
 
-async def query_translate(
+def query_translate(
         keywords: str,
         from_lang: str = None,
         to_lang: str = "en"
@@ -382,7 +382,7 @@ async def query_translate(
     return list(
         map(
             lambda doc: convert_to_dataclass(SpiderTranslateResponse, doc),
-            await browser.translate(
+            browser.translate(
                 keywords=keywords,
                 from_=from_lang,
                 to=to_lang
@@ -391,7 +391,7 @@ async def query_translate(
     )
 
 
-async def query_suggestions(
+def query_suggestions(
         keywords: str,
         region: Region = "wt-wt"
 ) -> list[SpiderSuggestionResponse]:
@@ -413,7 +413,7 @@ async def query_suggestions(
     return list(
         map(
             lambda doc: convert_to_dataclass(SpiderSuggestionResponse, doc),
-            await browser.suggestions(
+            browser.suggestions(
                 keywords=keywords,
                 region=region
             )
