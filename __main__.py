@@ -123,7 +123,7 @@ def main() -> None:
     # Keeps the interpreter running
     while True:
         # Less expensive than a pass statement on CPU
-        sleep(100_000) # Might need to change to 60
+        sleep(100_000)  # Might need to change to 60
 
 
 if __name__ == '__main__':
