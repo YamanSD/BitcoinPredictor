@@ -30,7 +30,6 @@ def run(
         pipeline: Pipeline,
         fed_rate: dict,
         logistic: bool = False,
-        incremental: bool = False
 ) -> Iterable[str]:
     """
 
@@ -38,7 +37,6 @@ def run(
         pipeline: Model pipeline to use for prediction.
         fed_rate: Federal rate that is already in use.
         logistic: True for logistic learning.
-        incremental: True if the model supports partial fitting
 
     """
 
@@ -58,7 +56,6 @@ def run(
 
         # Data to be formatted to JSON
         if logistic:
-            # TODO TEST if working
             data: dict = {
                 "prev": {
                     "timestamp": str(ob0.timestamp),
@@ -70,7 +67,7 @@ def run(
                 "current": {
                     "timestamp": str(ob1.timestamp),
                     "open": ob1.open,
-                    "p_direction": pred[0][0]
+                    "p_direction": float(pred)
                 }
             }
         else:
@@ -113,12 +110,6 @@ def run(
         # Set back to false
         fed_rate[fed_rate_key] = cur_observation.fed_rate
 
-        # Incremental learning based on previous candle
-        if incremental:
-            pipeline.named_steps['model'].partial_fit(
-                *prev_observation.to_train_df(logistic)
-            )
-
         # Apply the sentiment to the observation
         cur_observation.apply_sentiment(sentiment)
 
@@ -154,21 +145,21 @@ def set_observe(fed_rate: dict) -> None:
 @cross_origin()
 def lr() -> Response:
     global lr_model, fed_rate
-    return Response(run(lr_model, fed_rate, False, False), mimetype='text/event-stream')
+    return Response(run(lr_model, fed_rate, False), mimetype='text/event-stream')
 
 
 @app.route('/lgr')
 @cross_origin()
 def lgr() -> Response:
     global lgr_model, fed_rate
-    return Response(run(lgr_model, fed_rate, True, True), mimetype='text/event-stream')
+    return Response(run(lgr_model, fed_rate, True), mimetype='text/event-stream')
 
 
 @app.route('/elr')
 @cross_origin()
 def elr() -> Response:
     global elr_model, fed_rate
-    return Response(run(elr_model, fed_rate, False, True), mimetype='text/event-stream')
+    return Response(run(elr_model, fed_rate, False), mimetype='text/event-stream')
 
 
 def start() -> None:

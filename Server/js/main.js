@@ -191,9 +191,10 @@ lgrSource.onmessage = function(event) {
     const {prev, current} = data
 
     // TODO make the prev-observation scatter a candle stick chart and the predicted a bar graph showing increase, decrease or neutral
+    console.log(data)
 
-    addData('lgr', prev.timestamp, prev.open, prev.high, prev.low, prev.close, 0);
-    addData('lgr', current.timestamp, current.open, current.p_high, current.p_low, current.p_close, 1);
+    // addData('lgr', prev.timestamp, prev.open, prev.high, prev.low, prev.close, 0);
+    // addData('lgr', current.timestamp, current.open, current.p_high, current.p_low, current.p_close, 1);
 };
 
 // Listen to the events
