@@ -2,7 +2,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass, asdict
 from datetime import datetime
-from numpy import average
+from numpy import average, ndarray, sign, asarray
+from math import exp
 from requests import post
 from typing import Optional, Iterable
 
@@ -73,6 +74,9 @@ class SentimentResponse:
         self.positive /= other
         self.negative /= other
         self.neutral /= other
+
+    def sentiment_dif(self) -> float:
+        return self.positive - self.negative
 
 
 @dataclass(frozen=True)
@@ -168,3 +172,25 @@ def general_sentiment(keywords: str = "bitcoin sentiment news") -> SentimentResp
             24 - abs(current.hour - n.date.hour) for n in news
         )
     )
+
+
+def apply_sentiment(y_pred: ndarray, sentiment: SentimentResponse, logistic: bool = False) -> ndarray:
+    """
+
+    Args:
+        y_pred: Predicted y.
+        sentiment: Predicted sentiment.
+        logistic: True for logistic model
+
+    Returns:
+        Altered y_pred based on sentiment
+
+    """
+    # Mapping function
+    f = lambda x: 0 if x == 0 else (1 / (1 + exp(1 / x)) + min(0, sign(x))) / 4
+    sd: float = sentiment.sentiment_dif()
+
+    if logistic:
+        return y_pred
+    else:
+        y_pred

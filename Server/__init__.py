@@ -13,6 +13,7 @@ import Train
 from Config import config
 from Observer import observe, Observation, fed_rate_key
 from Sentiment import general_sentiment, SentimentResponse
+from Sentiment.sentiment import apply_sentiment
 from Utils import every
 
 
@@ -127,12 +128,12 @@ def run(
     # Set back to false
     fed_rate[fed_rate_key] = cur_observation.fed_rate
 
-    # Apply the sentiment to the observation
-    cur_observation.apply_sentiment(sentiment)
-
     y_pred = pipeline.predict(
         cur_observation.to_df()
     )
+
+    # Apply the sentiment to the prediction
+    apply_sentiment(y_pred, sentiment, logistic)
 
     # yield the predicted close, high, low
     q.put(format_sse_msg(prev_observation, cur_observation, y_pred, logistic))

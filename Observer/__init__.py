@@ -13,7 +13,6 @@ from .fng import fetch as fng_fetch, FngResponse
 from .fed_fund import fetch as fed_rate_fetch, FedFundResponse
 
 from Data import target_labels
-from Sentiment import SentimentResponse
 from Utils import convert_to_dataclass
 
 
@@ -87,17 +86,6 @@ class Observation:
             )
 
         return df.drop(target_labels, axis=1), df[target_labels]
-
-    def apply_sentiment(self, sentiment: SentimentResponse) -> None:
-        """
-
-        Args:
-            sentiment: Sentiment to apply to observation.
-
-        """
-        # TODO
-
-        pass
 
 
 def observe(fed_rate: dict) -> tuple[Observation, Observation]:
