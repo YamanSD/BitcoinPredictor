@@ -96,11 +96,11 @@ class Observation:
 
         """
         # TODO
+
         pass
 
 
 def observe(fed_rate: dict) -> tuple[Observation, Observation]:
-    # TODO
     """
 
     Args:
