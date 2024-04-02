@@ -54,24 +54,42 @@ def run(
             Message suitable for use in SSE.
 
         """
+        nonlocal logistic
 
         # Data to be formatted to JSON
-        data: dict = {
-            "prev": {
-                "timestamp": str(ob0.timestamp),
-                "open": ob0.open,
-                "close": ob0.close,
-                "high": ob0.high,
-                "low": ob0.low,
-            },
-            "current": {
-                "timestamp": str(ob1.timestamp),
-                "open": ob1.open,
-                "p_close": pred[0][0],
-                "p_high": pred[0][1],
-                "p_low": pred[0][2]
+        if logistic:
+            # TODO TEST if working
+            data: dict = {
+                "prev": {
+                    "timestamp": str(ob0.timestamp),
+                    "open": ob0.open,
+                    "close": ob0.close,
+                    "high": ob0.high,
+                    "low": ob0.low,
+                },
+                "current": {
+                    "timestamp": str(ob1.timestamp),
+                    "open": ob1.open,
+                    "p_direction": pred[0][0]
+                }
             }
-        }
+        else:
+            data: dict = {
+                "prev": {
+                    "timestamp": str(ob0.timestamp),
+                    "open": ob0.open,
+                    "close": ob0.close,
+                    "high": ob0.high,
+                    "low": ob0.low,
+                },
+                "current": {
+                    "timestamp": str(ob1.timestamp),
+                    "open": ob1.open,
+                    "p_close": pred[0][0],
+                    "p_high": pred[0][1],
+                    "p_low": pred[0][2]
+                }
+            }
 
         return f"data: {dumps(data)}\n\n"
 
