@@ -191,7 +191,7 @@ def query_news(
                 max_results=max_results,
                 safesearch=safe_search,
                 timelimit=timelimit,
-                region=region
+                region=region,
             )
         )
     )

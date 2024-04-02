@@ -64,7 +64,9 @@ def fetch() -> FedFundResponse:
             "%Y-%m-%d"
         ).replace(
             hour=current.hour,
-            minute=current.minute
+            minute=current.minute,
+            second=0,
+            microsecond=0
         ),
         "fed_rate": float(data['value'])
     })

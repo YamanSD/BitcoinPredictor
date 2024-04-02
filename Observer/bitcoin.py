@@ -48,7 +48,7 @@ def fetch() -> list[KlineResponse]:
         map(
             lambda doc: convert_to_dataclass(
                 KlineResponse, {
-                    "timestamp": datetime.utcfromtimestamp(int(doc[0]) // 1_000),
+                    "timestamp": datetime.utcfromtimestamp(int(doc[0]) // 1_000).replace(second=0, microsecond=0),
                     "open": float(doc[1]),
                     "high": float(doc[2]),
                     "low": float(doc[3]),

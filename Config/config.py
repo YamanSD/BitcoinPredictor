@@ -55,9 +55,12 @@ class ProxiesConfig(TypedDict):
     http: HTTP proxy.
 
     https: HTTPS proxy.
+
+    https_y: HTTPS proxy used by Yahoo.
     """
     http: str
     https: str
+    https_y: str
 
 
 @dataclass(frozen=True)

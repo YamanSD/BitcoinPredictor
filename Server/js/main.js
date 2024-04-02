@@ -1,13 +1,5 @@
-const eventSource = new EventSource('http://127.0.0.1:8081/lr');
-
-// Listen to the events
-eventSource.onmessage = function(event) {
-    console.log("P")
-    const eventsDiv = document.getElementById('test_div');
-    eventsDiv.innerHTML += '<p>New event received: ' + event.data + '</p>';
-};
-
-let actual = {
+// Actual trace plot
+const actual = {
     x: [],
     close: [],
     decreasing: {
@@ -32,11 +24,12 @@ let actual = {
     yaxis: 'y',
 };
 
-let predicted = {
+// Predicted trace plot
+const predicted = {
   x: [],
   close: [],
-  decreasing: {line: {color: '#7F7F7F'}},
   high: [],
+  decreasing: {line: {color: '#7F7F7F'}},
   increasing: {line: {color: '#17BECF'}},
   line: {color: 'rgba(31,119,180,1)'},
   low: [],
@@ -47,10 +40,11 @@ let predicted = {
   yaxis: 'y'
 };
 
-let data = [actual, predicted];
+// Traces of the candle sticks for all graphs
+const traces = [actual, predicted];
 
 // https://plotly.com/javascript/reference/layout/#layout-paper_bgcolor
-let layout = {
+const layout = {
     title: {
         text: "Linear Regression",
         font: {
@@ -72,9 +66,7 @@ let layout = {
         },
         autorange: true,
         domain: [0, 1],
-        range: ['2017-01-03 12:00', '2017-02-15 12:00'],
         rangeslider: {
-            range: ['2017-01-03 12:00', '2017-02-15 12:00'],
             bgcolor: 'rgba(0, 0, 0)'
         },
         title: 'Date',
@@ -96,57 +88,79 @@ let layout = {
         },
         autorange: true,
         domain: [0, 1],
-        range: [114.609999778, 137.410004222],
         type: 'linear'
     },
     gap: 0
 };
 
-// ignore
-// Plotly.newPlot('lr_chart', data, layout);
-// Plotly.newPlot('lgr_chart', data, {
-//     ...layout, title: {
-//         ...layout.title,
-//         text: "Logistic Regression"
-//     }
-// });
-// Plotly.newPlot('elr_chart', data, {
-//     ...layout, title: {
-//         ...layout.title,
-//         text: "Elastic Net"
-//     }
-// });
+// Create the plots
+Plotly.newPlot('lr_chart', traces, layout);
+Plotly.newPlot('lgr_chart', traces, {
+    ...layout, title: {
+        ...layout.title,
+        text: "Logistic Regression"
+    }
+});
+Plotly.newPlot('elr_chart', traces, {
+    ...layout, title: {
+        ...layout.title,
+        text: "Elastic Net"
+    }
+});
 
-let c = 0
 
-// Function to add new candlestick data
-function addCandlestickData(open, high, low, close) {
-    d = new Date()
-    d.setMilliseconds(0)
-    d.setSeconds(0)
-    d.setMinutes(d.getMinutes() + c)
-    c++;
-
-    let newData = {
-        x: [[d]],
-        close: [[close]],
-        high: [[high]],
-        low: [[low]],
-        open: [[open]]
-    };
-
-    Plotly.extendTraces('lr_chart', newData, [0]); // Update the chart with new data
+/**
+ * Appends the given information into the specified candle stick chart.
+ *
+ * @param chart {"lr", "lgr", "elr"} Chart to update.
+ * @param timestamp {string} String of the candle stick.
+ * @param open {number} Open of the candle stick.
+ * @param high {number} High of the candle stick.
+ * @param low {number} Low of the candle stick.
+ * @param close {number} of the candle stick.
+ * @param type {0, 1} Type of the candle stick to plot. 0 for actual, 1 for predicted.
+ */
+function addData(chart, timestamp, open, high, low, close, type) {
+    // Update the chart with new data
+    Plotly.extendTraces(
+        `${chart}_chart`,
+        {
+            x: [[new Date(timestamp.replace(' ', 'T'))]],
+            close: [[close]],
+            high: [[high]],
+            low: [[low]],
+            open: [[open]],
+        },
+        [type]
+    );
 }
 
-// Update the chart with random candlestick data every second
-function updateChart() {
-    let open = Math.random() * 100;
-    let high = open + Math.random() * 100;
-    let low = open - Math.random() * 100;
-    let close = low + Math.random() * (high - low);
 
-    addCandlestickData(open, high, low, close);
-}
+const lrSource = new EventSource('http://127.0.0.1:8081/lr');
 
-// setInterval(updateChart, 1_000);
+// Listen to the events
+lrSource.onmessage = function(event) {
+    /**
+     * @type {{
+     *     prev: {
+     *         open: number,
+     *         close: number,
+     *         high: number,
+     *         low: number,
+     *         timestamp: string,
+     *     },
+     *     current: {
+     *         open: number,
+     *         p_close: number,
+     *         p_high: number,
+     *         p_low: number,
+     *         timestamp: string,
+     *     }
+     * }}
+     */
+    const data = JSON.parse(event.data);
+    const {prev, current} = data
 
+    addData('lr', prev.timestamp, prev.open, prev.high, prev.low, prev.close, 0);
+    addData('lr', current.timestamp, current.open, current.p_high, current.p_low, current.p_close, 1);
+};

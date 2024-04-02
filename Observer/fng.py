@@ -39,7 +39,9 @@ def fetch() -> FngResponse:
             "%d-%m-%Y"
         ).replace(
             hour=current.hour,
-            minute=current.minute
+            minute=current.minute,
+            second=0,
+            microsecond=0
         ),
         "fng": int(data['value'])
     })

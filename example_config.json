@@ -21,7 +21,8 @@
   },
   "proxies": {
     "http": "socks5://localhost:9150",
-    "https": "socks5://localhost:9150"
+    "https": "socks5://localhost:9150",
+    "https_y": "socks5h://localhost:9150"
   },
   "observer": {
     "save": 3600

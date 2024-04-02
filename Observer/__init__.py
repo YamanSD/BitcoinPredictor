@@ -95,10 +95,12 @@ class Observation:
             sentiment: Sentiment to apply to observation.
 
         """
+        # TODO
         pass
 
 
 def observe(fed_rate: dict) -> tuple[Observation, Observation]:
+    # TODO
     """
 
     Args:

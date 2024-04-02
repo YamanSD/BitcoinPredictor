@@ -145,7 +145,8 @@ def general_sentiment(keywords: str = "bitcoin sentiment news") -> SentimentResp
     # Query the web for news
     news: list[spider.SpiderNewsResponse] = spider.query_news(
         keywords,
-        max_results=1_000
+        timelimit='d',
+        max_results=255
     )
 
     # Current datetime

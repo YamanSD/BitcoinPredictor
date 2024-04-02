@@ -22,4 +22,4 @@ def main() -> None:
 
 
 if __name__ == '__main__':
-    main()
+    main() # TODO fix observation gap every 4 minutes.

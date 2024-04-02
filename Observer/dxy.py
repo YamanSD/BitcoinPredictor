@@ -26,7 +26,7 @@ def fetch() -> DxyResponse:
 
     """
 
-    dxy: Ticker = Ticker("DX-Y.NYB", proxy=config.proxies['https'])
+    dxy: Ticker = Ticker("DX-Y.NYB", proxy=config.proxies['https_y'])
     data: dict = dxy.info
 
     return convert_to_dataclass(
