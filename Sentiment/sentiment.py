@@ -2,10 +2,10 @@ from __future__ import annotations
 
 from dataclasses import dataclass, asdict
 from datetime import datetime
-from numpy import average, ndarray, sign, asarray
+from numpy import average, ndarray, sign, vectorize
 from math import exp
 from requests import post
-from typing import Optional, Iterable
+from typing import Optional, Iterable, Callable
 
 from Config import config
 from Crawler import spider
@@ -187,10 +187,12 @@ def apply_sentiment(y_pred: ndarray, sentiment: SentimentResponse, logistic: boo
 
     """
     # Mapping function
-    f = lambda x: 0 if x == 0 else (1 / (1 + exp(1 / x)) + min(0, sign(x))) / 4
-    sd: float = sentiment.sentiment_dif()
+    f: Callable = lambda x: 0 if x == 0 else (1 / (1 + exp(1 / x)) + min(0, sign(x))) / 4
+    sentiment_score: float = f(sentiment.sentiment_dif())
 
     if logistic:
-        return y_pred
-    else:
-        y_pred
+        return y_pred if sign(sentiment_score) == sign(y_pred) or sign(sentiment_score) == 0 \
+            else -y_pred if abs(sentiment_score) >= 0.4 \
+            else y_pred
+
+    return y_pred * (1 + sentiment_score)

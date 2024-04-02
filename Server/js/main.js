@@ -29,7 +29,7 @@ const predicted = {
   x: [],
   close: [],
   high: [],
-  decreasing: {line: {color: '#7F7F7F'}},
+  decreasing: {line: {color: '#FF9900'}},
   increasing: {line: {color: '#17BECF'}},
   line: {color: 'rgba(31,119,180,1)'},
   low: [],

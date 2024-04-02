@@ -1,11 +1,11 @@
-from concurrent.futures import ThreadPoolExecutor, wait, Future
+from concurrent.futures import ThreadPoolExecutor, Future
 from flask import Flask, Response
 from flask_cors import CORS, cross_origin
 from json import dumps
 from multiprocessing import Process, Queue
 from numpy import ndarray
 from threading import Thread
-from time import sleep
+from time import sleep, time
 from pandas import options
 from sklearn.pipeline import Pipeline
 
@@ -20,11 +20,14 @@ from Utils import every
 app: Flask = Flask(__name__)
 cors: CORS = CORS(app)
 
-# Load the model from the files
+# General federal rate
+g_fed_rate: dict = {}
+lr_q: Queue = Queue()
+lgr_q: Queue = Queue()
+elr_q: Queue = Queue()
 lr_model: Pipeline = Train.lr_load()
 lgr_model: Pipeline = Train.lgr_load()
 elr_model: Pipeline = Train.elr_load()
-g_fed_rate: dict = {}
 
 
 def format_sse_msg(
@@ -85,58 +88,55 @@ def format_sse_msg(
 def run(
         pipeline: Pipeline,
         fed_rate: dict,
+        q: Queue,
         logistic: bool = False,
-        q: Queue = None
-) -> str:
+) -> None:
     """
 
     Args:
         pipeline: Model pipeline to use for prediction.
         fed_rate: Federal rate that is already in use.
-        logistic: True for logistic learning.
         q: Queue that holds the multiprocessing output.
+        logistic: True for logistic learning.
 
     """
-    if q is None:
-        q = Queue()
-        p: Process = Process(target=run, args=(pipeline, fed_rate, logistic, q))
-        p.start()
+    # Loop indefinitely & push to queue
+    while True:
+        # Initial time
+        t0: time = time()
 
-        res: str = q.get(block=True, timeout=None)
-        p.join()
+        with ThreadPoolExecutor(max_workers=2) as executor:
+            observation_fu: Future = executor.submit(observe, fed_rate)
+            sentiment_fu: Future = executor.submit(general_sentiment)
 
-        return res
+            # Type declarations
+            prev_observation: Observation
+            cur_observation: Observation
+            sentiment: SentimentResponse
 
-    # Sleep for 60 seconds
-    sleep(60)
+            prev_observation, cur_observation = observation_fu.result()
+            sentiment: SentimentResponse = sentiment_fu.result()
 
-    with ThreadPoolExecutor(max_workers=2) as executor:
-        observation_fu: Future = executor.submit(observe, fed_rate)
-        sentiment_fu: Future = executor.submit(general_sentiment)
+        # Set back to false
+        fed_rate[fed_rate_key] = cur_observation.fed_rate
 
-        # Wait for the threads
-        wait((observation_fu, sentiment_fu))
+        y_pred = pipeline.predict(
+            cur_observation.to_df()
+        )
 
-        # Type declarations
-        prev_observation: Observation
-        cur_observation: Observation
-        sentiment: SentimentResponse
+        # Apply the sentiment to the prediction
+        apply_sentiment(y_pred, sentiment, logistic)
 
-        prev_observation, cur_observation = observation_fu.result()
-        sentiment: SentimentResponse = sentiment_fu.result()
+        # Time after execution
+        t1: time = time()
 
-    # Set back to false
-    fed_rate[fed_rate_key] = cur_observation.fed_rate
+        # If the difference is less than 59s (additional second for processing time)
+        if t1 - t0 < 59:
+            # Sleep for the remainer of the time
+            sleep(int(59 - t1 + t0))
 
-    y_pred = pipeline.predict(
-        cur_observation.to_df()
-    )
-
-    # Apply the sentiment to the prediction
-    apply_sentiment(y_pred, sentiment, logistic)
-
-    # yield the predicted close, high, low
-    q.put(format_sse_msg(prev_observation, cur_observation, y_pred, logistic))
+        # yield the predicted close, high, low to the queue
+        q.put(format_sse_msg(prev_observation, cur_observation, y_pred, logistic))
 
 
 def set_observe(fed_rate: dict) -> None:
@@ -151,26 +151,53 @@ def set_observe(fed_rate: dict) -> None:
 @app.route('/lr')
 @cross_origin()
 def lr() -> Response:
-    global lr_model, g_fed_rate
-    return Response(run(lr_model, g_fed_rate, False), mimetype='text/event-stream')
+    global lr_q
+
+    # Continuously take output from lr queue
+    return Response(lr_q.get(), mimetype='text/event-stream')
 
 
 @app.route('/lgr')
 @cross_origin()
 def lgr() -> Response:
-    global lgr_model, g_fed_rate
-    return Response(run(lgr_model, g_fed_rate, True), mimetype='text/event-stream')
+    global lgr_q
+
+    # Continuously take output from lr queue
+    return Response(lgr_q.get(), mimetype='text/event-stream')
 
 
 @app.route('/elr')
 @cross_origin()
 def elr() -> Response:
-    global elr_model, g_fed_rate
-    return Response(run(elr_model, g_fed_rate, False), mimetype='text/event-stream')
+    global elr_q
+
+    # Continuously take output from lr queue
+    return Response(elr_q.get(), mimetype='text/event-stream')
+
+
+def start_model(
+    pipeline: Pipeline,
+    fed_rate: dict,
+    q: Queue,
+    logistic: bool = False,
+) -> None:
+    """
+
+    Starts the model process.
+
+    Args:
+        pipeline: Model pipeline to use for prediction.
+        fed_rate: Federal rate that is already in use.
+        q: Queue that holds the multiprocessing output.
+        logistic: True for logistic learning.
+
+    """
+    # Start the run cycle
+    run(pipeline, fed_rate, q, logistic)
 
 
 def start() -> None:
-    global lr_model
+    global g_fed_rate, lr_q, lr_model, lgr_q, lgr_model, elr_q, elr_model
 
     options.display.max_columns = None
 
@@ -183,4 +210,14 @@ def start() -> None:
     # Start the threads
     fed_t.start()
 
-    app.run(debug=True, port=config.server.port)
+    # Start the LR model process
+    Process(target=start_model, args=(lr_model, g_fed_rate, lr_q, False)).start()
+
+    # Start the LGR model process
+    Process(target=start_model, args=(lgr_model, g_fed_rate, lgr_q, True)).start()
+
+    # Start the ELR model process
+    Process(target=start_model, args=(elr_model, g_fed_rate, elr_q, False)).start()
+
+    # Do not use reloaded as it starts 2 separate processes (lots of headache)
+    app.run(debug=True, port=config.server.port, use_reloader=False)
