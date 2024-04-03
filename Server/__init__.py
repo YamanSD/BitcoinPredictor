@@ -28,7 +28,6 @@ g_fed_rate: dict = {
 lr_q: Queue = Queue()
 lgr_q: Queue = Queue()
 elr_q: Queue = Queue()
-lr_establish = elr_establish = lgr_establish = False
 lr_model: Pipeline = Train.lr_load()
 lgr_model: Pipeline = Train.lgr_load()
 elr_model: Pipeline = Train.elr_load()
