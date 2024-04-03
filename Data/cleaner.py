@@ -186,7 +186,7 @@ def clean_fear_greed() -> DataFrame:
     df.drop("value_classification", axis=1, inplace=True)
 
     # This fng value is based on the bitcoin upward trend in 2017
-    missing_df: DataFrame = DataFrame.from_dict({ts: ['01-01-2017'], 'fng': [70]})
+    missing_df: DataFrame = DataFrame.from_dict({ts: ['01-01-2017'], 'fng': [50]})
 
     # Join the missing value with the current values
     df = concat([missing_df, df]).reset_index(drop=True)

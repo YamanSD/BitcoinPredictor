@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, asdict
 from datetime import datetime
-from numpy import average, ndarray, sign, vectorize
+from numpy import average, ndarray, sign
 from math import exp
 from requests import post
 from typing import Optional, Iterable, Callable
@@ -75,7 +75,7 @@ class SentimentResponse:
         self.negative /= other
         self.neutral /= other
 
-    def sentiment_dif(self) -> float:
+    def net_sentiment(self) -> float:
         return self.positive - self.negative
 
 
@@ -135,6 +135,37 @@ def query(payload: SentimentRequest) -> list[SentimentResponse]:
     )
 
 
+def relative_sentiment(
+        news: list[spider.SpiderNewsResponse | spider.SpiderTextResponse],
+        weight_func: Callable[[spider.SpiderNewsResponse], float]
+) -> SentimentResponse:
+    """
+
+    Args:
+        news: List of news fetched from the web.
+        weight_func: Weight function applied on each news article.
+
+    Returns:
+        The weighted average sentiment response based on the given weight function.
+
+    """
+
+    # Query the NLP model and average the weights
+    return average(
+        query(
+            SentimentRequest(
+                tuple(
+                    map(
+                        lambda n: f"{n.title}\n{n.body}",
+                        news
+                    )
+                )
+            )
+        ),
+        weights=tuple(map(weight_func, news))
+    )
+
+
 def general_sentiment(keywords: str = "bitcoin sentiment news") -> SentimentResponse:
     """
 
@@ -157,21 +188,7 @@ def general_sentiment(keywords: str = "bitcoin sentiment news") -> SentimentResp
     current: datetime = datetime.now()
 
     # Query the NLP model and average the weights
-    return average(
-        query(
-            SentimentRequest(
-                tuple(
-                    map(
-                        lambda n: f"{n.title}\n{n.body}",
-                        news
-                    )
-                )
-            )
-        ),
-        weights=tuple(
-            24 - abs(current.hour - n.date.hour) for n in news
-        )
-    )
+    return relative_sentiment(news, lambda n: 24 - abs(current.hour - n.date.hour))
 
 
 def apply_sentiment(y_pred: ndarray, sentiment: SentimentResponse, logistic: bool = False) -> ndarray:
@@ -188,7 +205,7 @@ def apply_sentiment(y_pred: ndarray, sentiment: SentimentResponse, logistic: boo
     """
     # Mapping function
     f: Callable = lambda x: 0 if x == 0 else (1 / (1 + exp(1 / x)) + min(0, sign(x))) / 4
-    sentiment_score: float = f(sentiment.sentiment_dif())
+    sentiment_score: float = f(sentiment.net_sentiment())
 
     if logistic:
         return y_pred if sign(sentiment_score) == sign(y_pred) or sign(sentiment_score) == 0 \
