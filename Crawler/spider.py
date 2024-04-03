@@ -212,7 +212,7 @@ def query_text(
     Args:
         keywords: Search term of spider.
         max_results: Number of maximum results.
-        timelimit: d for day, w for week, m for month, or use bounds for search from time to time.
+        timelimit: d for day, w for week, m for month, or use bounds for search from time to time. Dates have the form of yyyy-mm-dd.
         safe_search: on, moderate, or off.
         region: Search region.
 
