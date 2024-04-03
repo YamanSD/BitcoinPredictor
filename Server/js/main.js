@@ -42,8 +42,12 @@ const predicted = {
   yaxis: 'y'
 };
 
-// Traces of the candle sticks for all graphs
-const traces = [actual, predicted];
+/**
+ * @returns a clone of the traces.
+ */
+function genTraces() {
+    return [{...actual}, {...predicted}]
+}
 
 // https://plotly.com/javascript/reference/layout/#layout-paper_bgcolor
 const layout = {
@@ -99,15 +103,15 @@ const layout = {
     gap: 0
 };
 
-// Create the plots
-Plotly.newPlot('lr_chart', traces, layout);
-Plotly.newPlot('lgr_chart', traces, {
+// Create the plots (Note we must clone the traces]
+Plotly.newPlot('lr_chart', genTraces(), layout);
+Plotly.newPlot('lgr_chart', genTraces(), {
     ...layout, title: {
         ...layout.title,
         text: "Logistic Regression"
     }
 });
-Plotly.newPlot('elr_chart', traces, {
+Plotly.newPlot('elr_chart', genTraces(), {
     ...layout, title: {
         ...layout.title,
         text: "Elastic Net"
@@ -145,9 +149,9 @@ function addData(chart, timestamp, open, high, low, close, type) {
 const infoSource = new EventSource('http://127.0.0.1:8081/info');
 
 // Listen to the events
-lrSource.onmessage = function(event) {
+infoSource.onmessage = function(event) {
     /**
-     * @type {{
+     * @typedef {{
      *     prev: {
      *         open: number,
      *         close: number,
@@ -162,71 +166,22 @@ lrSource.onmessage = function(event) {
      *         p_low: number,
      *         timestamp: string,
      *     }
-     * }}
+     * }} PredictionResponse
      */
-    const data = JSON.parse(event.data);
-    const {prev, current} = data
 
-    addData('lr', prev.timestamp, prev.open, prev.high, prev.low, prev.close, 0);
-    addData('lr', current.timestamp, current.open, current.p_high, current.p_low, current.p_close, 1);
-};
-
-// Listen to the events
-lgrSource.onmessage = function(event) {
     /**
      * @type {{
-     *     prev: {
-     *         open: number,
-     *         close: number,
-     *         high: number,
-     *         low: number,
-     *         timestamp: string,
-     *     },
-     *     current: {
-     *         open: number,
-     *         p_close: number,
-     *         p_high: number,
-     *         p_low: number,
-     *         timestamp: string,
-     *     }
+     *     lr: PredictionResponse,
+     *     lgr: PredictionResponse,
+     *     elr: PredictionResponse
      * }}
      */
     const data = JSON.parse(event.data);
-    const {prev, current} = data
 
-    // TODO make the prev-observation scatter a candle stick chart and the predicted a bar graph showing increase, decrease or neutral
-    // console.log(data)
+    for (const [key, value] of Object.entries(data)) {
+        const {prev, current} = value;
 
-    // addData('lgr', prev.timestamp, prev.open, prev.high, prev.low, prev.close, 0);
-    // addData('lgr', current.timestamp, current.open, current.p_high, current.p_low, current.p_close, 1);
-};
-
-// Listen to the events
-elrSource.onmessage = function(event) {
-    /**
-     * @type {{
-     *     prev: {
-     *         open: number,
-     *         close: number,
-     *         high: number,
-     *         low: number,
-     *         timestamp: string,
-     *     },
-     *     current: {
-     *         open: number,
-     *         p_close: number,
-     *         p_high: number,
-     *         p_low: number,
-     *         timestamp: string,
-     *     }
-     * }}
-     */
-    const data = JSON.parse(event.data);
-    const {prev, current} = data
-
-    console.log("ELR")
-    console.log(data)
-
-    addData('elr', prev.timestamp, prev.open, prev.high, prev.low, prev.close, 0);
-    addData('elr', current.timestamp, current.open, current.p_high, current.p_low, current.p_close, 1);
+        addData(key, prev.timestamp, prev.open, prev.high, prev.low, prev.close, 0);
+        addData(key, current.timestamp, current.open, current.p_high, current.p_low, current.p_close, 1);
+    }
 };

@@ -15,13 +15,13 @@ from Config import config
 from Observer import observe, Observation, fed_rate_key
 from Sentiment import general_sentiment, SentimentResponse
 from Sentiment.sentiment import apply_sentiment
-from Utils import every
+from Utils import every, join_jsons, format_sse
 
 
 app: Flask = Flask(__name__)
 cors: CORS = CORS(app)
 
-# General federal rate
+# General federal rate (For testing only, due to API limits)
 g_fed_rate: dict = {
     fed_rate_key: 5.44
 }
@@ -35,6 +35,7 @@ elr_model: Pipeline = Train.elr_load()
 
 
 def run(
+        name: str,
         pipeline: Pipeline,
         fed_rate: dict,
         q: Queue,
@@ -43,6 +44,7 @@ def run(
     """
 
     Args:
+        name: Name of the model.
         pipeline: Model pipeline to use for prediction.
         fed_rate: Federal rate that is already in use.
         q: Queue that holds the multiprocessing output.
@@ -66,43 +68,42 @@ def run(
             Message suitable for use in SSE.
 
         """
-        nonlocal logistic
+        nonlocal logistic, name
+
+        # Data object
+        data: dict = {
+            name: {
+                "prev": {
+                    "timestamp": str(ob0.timestamp),
+                    "open": ob0.open,
+                    "close": ob0.close,
+                    "high": ob0.high,
+                    "low": ob0.low,
+                },
+            }
+        }
 
         # Data to be formatted to JSON
         if logistic:
-            data: dict = {
-                "prev": {
-                    "timestamp": str(ob0.timestamp),
-                    "open": ob0.open,
-                    "close": ob0.close,
-                    "high": ob0.high,
-                    "low": ob0.low,
-                },
-                "current": {
-                    "timestamp": str(ob1.timestamp),
-                    "open": ob1.open,
-                    "p_direction": float(pred)
-                }
+            direction: float = ob1.open + float(pred)
+
+            data[name]["current"] = {
+                "timestamp": str(ob1.timestamp),
+                "open": ob1.open,
+                "p_close": direction,
+                "p_high": direction,
+                "p_low": direction
             }
         else:
-            data: dict = {
-                "prev": {
-                    "timestamp": str(ob0.timestamp),
-                    "open": ob0.open,
-                    "close": ob0.close,
-                    "high": ob0.high,
-                    "low": ob0.low,
-                },
-                "current": {
-                    "timestamp": str(ob1.timestamp),
-                    "open": ob1.open,
-                    "p_close": pred[0][0],
-                    "p_high": pred[0][1],
-                    "p_low": pred[0][2]
-                }
+            data[name]["current"] = {
+                "timestamp": str(ob1.timestamp),
+                "open": ob1.open,
+                "p_close": pred[0][0],
+                "p_high": pred[0][1],
+                "p_low": pred[0][2]
             }
 
-        return f"data: {dumps(data)}\n\n"
+        return dumps(data)
 
     # Loop indefinitely & push to queue
     while True:
@@ -157,43 +158,20 @@ def set_observe(fed_rate: dict) -> None:
 @app.route('/info')
 @cross_origin()
 def info() -> Response:
-    global lr_q, lr_establish
-
-    if not lr_establish:
-        lr_establish = True
-        return Response("", mimetype='text/plain')
-
-    # Continuously take output from lr queue
-    return Response(lr_q.get(), mimetype='text/event-stream')
-
-
-@app.route('/lgr')
-@cross_origin()
-def lgr() -> Response:
-    global lgr_q, lgr_establish
-
-    if not lgr_establish:
-        lgr_establish = True
-        return Response("", mimetype='text/plain')
+    def generate() -> str:
+        global lr_q, elr_q, lgr_q
+        return format_sse(
+            join_jsons(
+                q.get() for q in (lr_q, elr_q, lgr_q)
+            )
+        )
 
     # Continuously take output from lr queue
-    return Response(lgr_q.get(), mimetype='text/event-stream')
-
-
-@app.route('/elr')
-@cross_origin()
-def elr() -> Response:
-    global elr_q, elr_establish
-
-    if not elr_establish:
-        elr_establish = True
-        return Response("", mimetype='text/plain')
-
-    # Continuously take output from lr queue
-    return Response(elr_q.get(), mimetype='text/event-stream')
+    return Response(generate(), mimetype='text/event-stream')
 
 
 def start_model(
+    name: str,
     pipeline: Pipeline,
     fed_rate: dict,
     q: Queue,
@@ -204,6 +182,7 @@ def start_model(
     Starts the model process.
 
     Args:
+        name: String that holds the prediction values in the SSE response.
         pipeline: Model pipeline to use for prediction.
         fed_rate: Federal rate that is already in use.
         q: Queue that holds the multiprocessing output.
@@ -211,7 +190,7 @@ def start_model(
 
     """
     # Start the run cycle
-    run(pipeline, fed_rate, q, logistic)
+    run(name, pipeline, fed_rate, q, logistic)
 
 
 def start() -> None:
@@ -234,13 +213,13 @@ def start() -> None:
     fed_t.start()
 
     # Start the LR model process
-    Process(target=start_model, args=(lr_model, g_fed_rate, lr_q, False)).start()
+    Process(target=start_model, args=("lr", lr_model, g_fed_rate, lr_q, False)).start()
 
     # Start the LGR model process
-    Process(target=start_model, args=(lgr_model, g_fed_rate, lgr_q, True)).start()
+    Process(target=start_model, args=("lgr", lgr_model, g_fed_rate, lgr_q, True)).start()
 
     # Start the ELR model process
-    Process(target=start_model, args=(elr_model, g_fed_rate, elr_q, False)).start()
+    Process(target=start_model, args=("elr", elr_model, g_fed_rate, elr_q, False)).start()
 
     # Do not use reloaded as it starts 2 separate processes (lots of headache)
     app.run(debug=True, port=config.server.port, use_reloader=False)

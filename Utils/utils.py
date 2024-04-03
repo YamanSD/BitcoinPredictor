@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from functools import reduce
 from threading import Thread
 from time import time, sleep
 from traceback import print_exc
@@ -80,3 +81,29 @@ def every(delay: float | int, task: Callable, *args: Any, **kwargs: Any) -> None
 
         # skip tasks if we are behind schedule:
         next_time += (time() - next_time) // delay * delay + delay
+
+
+def join_jsons(jss: Iterable[str]) -> str:
+    """
+
+    Args:
+        jss: Iterable of JSONs in the form of strings.
+
+    Returns:
+        The combined strings into a single valid JSON.
+
+    """
+    return reduce(lambda j0, j1: f"{{{j0[1:-1]}, {j1[1:-1]}}}", jss)
+
+
+def format_sse(data: str) -> str:
+    """
+
+    Args:
+        data: Data to be sent over SSE.
+
+    Returns:
+        A formatted string valid for SSE.
+
+    """
+    return f"data: {data}\n\n"
