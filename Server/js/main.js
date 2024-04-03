@@ -1,3 +1,5 @@
+const currentDateStr = new Date().toISOString().split('T')[0];
+
 // Actual trace plot
 const actual = {
     x: [],
@@ -64,10 +66,12 @@ const layout = {
         tickfont: {
             color: 'rgb(255, 255, 255)'
         },
+        range: [`${currentDateStr}  00:00`, `${currentDateStr}  23:59`],
         autorange: true,
         domain: [0, 1],
         rangeslider: {
-            bgcolor: 'rgba(0, 0, 0)'
+            bgcolor: 'rgba(0, 0, 0)',
+            range: [`${currentDateStr}  00:00`, `${currentDateStr}  23:59`]
         },
         title: 'Date',
         type: 'date'
@@ -82,6 +86,8 @@ const layout = {
     paper_bgcolor: "rgba(0, 0, 0)",
     plot_bgcolor: "rgba(0, 0, 0)",
     yaxis: {
+        title: "Value",
+        range: [40_000, 80_000],
         gridcolor: 'rgb(100, 100, 100)',
         tickfont: {
             color: 'rgb(255, 255, 255)'
@@ -136,9 +142,7 @@ function addData(chart, timestamp, open, high, low, close, type) {
 }
 
 
-const lrSource = new EventSource('http://127.0.0.1:8081/lr');
-const lgrSource = new EventSource('http://127.0.0.1:8081/lgr');
-const elrSource = new EventSource('http://127.0.0.1:8081/elr');
+const infoSource = new EventSource('http://127.0.0.1:8081/info');
 
 // Listen to the events
 lrSource.onmessage = function(event) {
@@ -191,7 +195,7 @@ lgrSource.onmessage = function(event) {
     const {prev, current} = data
 
     // TODO make the prev-observation scatter a candle stick chart and the predicted a bar graph showing increase, decrease or neutral
-    console.log(data)
+    // console.log(data)
 
     // addData('lgr', prev.timestamp, prev.open, prev.high, prev.low, prev.close, 0);
     // addData('lgr', current.timestamp, current.open, current.p_high, current.p_low, current.p_close, 1);
@@ -219,6 +223,9 @@ elrSource.onmessage = function(event) {
      */
     const data = JSON.parse(event.data);
     const {prev, current} = data
+
+    console.log("ELR")
+    console.log(data)
 
     addData('elr', prev.timestamp, prev.open, prev.high, prev.low, prev.close, 0);
     addData('elr', current.timestamp, current.open, current.p_high, current.p_low, current.p_close, 1);
