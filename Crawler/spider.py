@@ -9,6 +9,7 @@ from duckduckgo_search import DDGS
 from Config import config
 from Utils import convert_to_dataclass
 
+# ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEHNNMeliSm7M5QF4IfkYZJvhnC2VA1CcIrlloq8xPfn
 # Type of search regions
 Region = Literal[
     'xa-ar', 'xa-en',
