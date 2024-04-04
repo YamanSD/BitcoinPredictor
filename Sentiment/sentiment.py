@@ -136,7 +136,7 @@ def query(payload: SentimentRequest) -> list[SentimentResponse]:
 
 
 def relative_sentiment(
-        news: list[spider.SpiderNewsResponse | spider.SpiderTextResponse],
+        news: list[spider.SpiderNewsResponse | spider.SpiderTextResponse | str],
         weight_func: Callable[[spider.SpiderNewsResponse], float]
 ) -> SentimentResponse:
     """
@@ -156,10 +156,11 @@ def relative_sentiment(
             SentimentRequest(
                 tuple(
                     map(
-                        lambda n: f"{n.title}\n{n.body}",
+                        lambda n: n.body,
                         news
                     )
-                )
+                ) if type(news[0]) is not str
+                else news
             )
         ),
         weights=tuple(map(weight_func, news))

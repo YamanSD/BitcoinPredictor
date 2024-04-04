@@ -28,6 +28,7 @@ g_fed_rate: dict = {
 lr_q: Queue = Queue()
 lgr_q: Queue = Queue()
 elr_q: Queue = Queue()
+observation_q: Queue = Queue()
 lr_model: Pipeline = Train.lr_load()
 lgr_model: Pipeline = Train.lgr_load()
 elr_model: Pipeline = Train.elr_load()
@@ -67,6 +68,7 @@ def run(
             Message suitable for use in SSE.
 
         """
+        global observation_q
         nonlocal logistic, name
 
         # Data object
@@ -109,17 +111,13 @@ def run(
         # Initial time
         t0: time = time()
 
-        with ThreadPoolExecutor(max_workers=2) as executor:
-            observation_fu: Future = executor.submit(observe, fed_rate)
-            sentiment_fu: Future = executor.submit(general_sentiment)
+        # Type declarations
+        prev_observation: Observation
+        cur_observation: Observation
+        sentiment: SentimentResponse
 
-            # Type declarations
-            prev_observation: Observation
-            cur_observation: Observation
-            sentiment: SentimentResponse
-
-            prev_observation, cur_observation = observation_fu.result()
-            sentiment: SentimentResponse = sentiment_fu.result()
+        # Read the observations from the observation queue
+        prev_observation, cur_observation, sentiment = observation_q.get()
 
         # Set back to false
         fed_rate[fed_rate_key] = cur_observation.fed_rate
@@ -131,15 +129,49 @@ def run(
         # Apply the sentiment to the prediction
         apply_sentiment(y_pred, sentiment, logistic)
 
-        holder: str = format_sse_msg(prev_observation, cur_observation, y_pred)
-
         # yield the predicted close, high, low to the queue
-        q.put_nowait(holder)
+        q.put_nowait(
+            format_sse_msg(prev_observation, cur_observation, y_pred)
+        )
 
         # Time after execution
         t1: time = time()
 
-        # If the difference is less than 59s (additional second for processing time)
+        # If the difference is less than 60s
+        if t1 - t0 < 60:
+            # Sleep for the remainder of the time
+            sleep(abs(60 - t1 + t0))
+
+
+def total_observation(fed_rate: dict) -> None:
+    """
+
+    Args:
+        fed_rate: Federal rate that is already in use.
+
+    """
+    global observation_q
+
+    # Loop indefinitely & push to queue
+    while True:
+        # Initial time
+        t0: time = time()
+
+        with ThreadPoolExecutor(max_workers=2) as executor:
+            observation_fu: Future = executor.submit(observe, fed_rate)
+            sentiment_fu: Future = executor.submit(general_sentiment)
+
+            prev_observation, cur_observation = observation_fu.result()
+            sentiment: SentimentResponse = sentiment_fu.result()
+
+        # Insert one observation for each model
+        for i in range(3):
+            observation_q.put_nowait((prev_observation, cur_observation, sentiment))
+
+        # Time after execution
+        t1: time = time()
+
+        # If the difference is less than 60s
         if t1 - t0 < 60:
             # Sleep for the remainder of the time
             sleep(abs(60 - t1 + t0))
@@ -210,6 +242,9 @@ def start() -> None:
 
     # Start the threads
     fed_t.start()
+
+    # Start the observation listener
+    Process(target=total_observation, args=(g_fed_rate,)).start()
 
     # Start the LR model process
     Process(target=start_model, args=("lr", lr_model, g_fed_rate, lr_q, False)).start()
