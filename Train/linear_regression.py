@@ -1,6 +1,6 @@
 from pandas import DataFrame
 from sklearn.linear_model import LinearRegression
-from sklearn.metrics import r2_score
+from sklearn.metrics import root_mean_squared_error
 from sklearn.model_selection import train_test_split, TimeSeriesSplit
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
@@ -50,7 +50,7 @@ def test(n: int) -> list[float]:
         n: Number of K-Folds to perform.
 
     Returns:
-        List of R2 scores for each iteration.
+        List of root mean squared error scores for each iteration.
 
     """
 
@@ -66,7 +66,7 @@ def test(n: int) -> list[float]:
 
         _, y_pred = simple_train(X_test, X_train, y_train)
 
-        res.append(r2_score(y_test, y_pred))
+        res.append(root_mean_squared_error(y_test, y_pred))
 
     return res
 
@@ -80,7 +80,7 @@ def train(no_save: bool = False) -> tuple[Pipeline, float]:
         no_save: True to not save the trained model.
 
     Returns:
-        The trained model along with its R2 score.
+        The trained model along with its root mean squared error score.
 
     """
     X, y = get_split_data()
@@ -93,7 +93,7 @@ def train(no_save: bool = False) -> tuple[Pipeline, float]:
     if not no_save:
         save(pipeline)
 
-    return pipeline, r2_score(y_test, y_pred)
+    return pipeline, root_mean_squared_error(y_test, y_pred)
 
 
 def load() -> Pipeline:

@@ -1,7 +1,7 @@
 from pandas import DataFrame
 from sklearn.experimental import enable_halving_search_cv  # noqa To use HalvingGridSearchCV
 from sklearn.linear_model import ElasticNet
-from sklearn.metrics import r2_score
+from sklearn.metrics import root_mean_squared_error
 from sklearn.model_selection import train_test_split, TimeSeriesSplit, HalvingGridSearchCV
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
@@ -34,7 +34,7 @@ def simple_train(
 
     """
 
-    # Create a dictionary containing potential values of alphas and l1
+    # Dictionary containing potential values of alphas and l1
     alpha_values: dict = {
         'alpha': [0.00005, 0.0005, 0.001, 0.01, 0.05, 0.06, 0.08, 1, 2, 3, 5, 8, 10, 20, 50, 100],
         'l1_ratio': [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 1]
@@ -48,8 +48,8 @@ def simple_train(
             HalvingGridSearchCV(
                 ElasticNet(),
                 alpha_values,
-                scoring='neg_mean_squared_error',
-                cv=10,
+                scoring='neg_root_mean_squared_error',
+                cv=16,
                 factor=2,
                 n_jobs=-1,
                 verbose=3 if verbose else 0
@@ -58,6 +58,7 @@ def simple_train(
     ])
 
     # Check https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.HalvingRandomSearchCV.html
+    # ELR model (which is linear)
     pipeline.fit(x_train, y_train)
 
     return pipeline, DataFrame(pipeline.predict(x_test), columns=["high", "low", "close"])
@@ -70,7 +71,7 @@ def test(n: int) -> list[int]:
         n: Number of K-Folds to perform.
 
     Returns:
-        List of R2 scores for each iteration.
+        List of root mean squared error scores for each iteration.
 
     """
 
@@ -86,7 +87,7 @@ def test(n: int) -> list[int]:
 
         _, y_pred = simple_train(X_test, X_train, y_train)
 
-        res.append(r2_score(y_test, y_pred))
+        res.append(root_mean_squared_error(y_test, y_pred))
 
     return res
 
@@ -101,7 +102,7 @@ def train(*, no_save: bool = False, verbose: bool = False) -> tuple[Pipeline, fl
         verbose: True to make the training step verbose.
 
     Returns:
-        The trained model along with its R2 score.
+        The trained model along with its root mean squared error score.
 
     """
 
@@ -115,7 +116,7 @@ def train(*, no_save: bool = False, verbose: bool = False) -> tuple[Pipeline, fl
     if not no_save:
         save(pipeline)
 
-    return pipeline, r2_score(y_test, y_pred)
+    return pipeline, root_mean_squared_error(y_test, y_pred)
 
 
 def load() -> Pipeline:

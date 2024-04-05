@@ -4,7 +4,7 @@ from pandas import DataFrame, Series, Timedelta, to_datetime, \
 from pandas.core.dtypes.common import is_numeric_dtype
 
 from .io import load_fed_funds, load_bitcoin, load_dxy, \
-    save_parquet, dir_path, load_fear_greed
+    save_parquet, dir_path, load_fear_greed, load_sentiment
 
 
 def clean_bitcoin() -> tuple[DataFrame, dict]:
@@ -116,6 +116,47 @@ def clean_dxy() -> DataFrame:
 
     # Save file
     save_parquet(df, 'dxy')
+
+    return df
+
+
+def clean_sentiment() -> DataFrame:
+    """
+
+        Cleans the sentiment dataset and saves it.
+
+        Returns:
+            DataFrame containing the cleaned sentiment data.
+
+        """
+
+    # Timestamp column name
+    ts: str = 'timestamp'
+
+    df: DataFrame = load_sentiment()
+
+    # Rename the columns
+    df.rename(columns={
+        "data": "sentiment"
+    }, inplace=True)
+
+    # Convert the timestamp column to a datetime object
+    df[ts] = to_datetime(df[ts], format="%Y-%m-%d")
+
+    # Extract only useful dates
+    df = df[(Timestamp('2017-01-01') <= df[ts]) & (df[ts] <= Timestamp('2023-12-31'))]
+
+    # Set the timestamp column as the index (for df.resample to work)
+    df.set_index(ts, inplace=True)
+
+    # Resample the DataFrame into minute intervals and forward fill the values
+    df = df.resample('min').asfreq()
+
+    # Fill NaN values with the average of the neighboring values
+    df = df.interpolate(method='time')
+
+    # Save file
+    save_parquet(df, 'sentiment')
 
     return df
 
@@ -265,6 +306,25 @@ def load_clean_dxy() -> DataFrame:
         return read_parquet(cl_path)
 
     return clean_dxy()
+
+
+def load_clean_sentiment() -> DataFrame:
+    """
+
+    Loads the clean sentiment Data from 2017 to 2023 and returns it as a DataFrame.
+    If not cleaned, the data is cleaned.
+
+    Returns:
+        DataFrame containing the cleaned sentiment data.
+
+    """
+    cl_path: str = path.join(dir_path, "sentiment", "clean.parquet")
+
+    # If we have already cleaned the file, then return it.
+    if path.exists(cl_path):
+        return read_parquet(cl_path)
+
+    return clean_sentiment()
 
 
 def load_clean_bitcoin() -> DataFrame:

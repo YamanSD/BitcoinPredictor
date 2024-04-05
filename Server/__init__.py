@@ -14,7 +14,6 @@ import Train
 from Config import config
 from Observer import observe, Observation, fed_rate_key
 from Sentiment import general_sentiment, SentimentResponse
-from Sentiment.sentiment import apply_sentiment
 from Utils import every, join_jsons, format_sse
 
 
@@ -32,6 +31,65 @@ observation_q: Queue = Queue()
 lr_model: Pipeline = Train.lr_load()
 lgr_model: Pipeline = Train.lgr_load()
 elr_model: Pipeline = Train.elr_load()
+
+
+def format_sse_msg(
+        ob0: Observation,
+        ob1: Observation,
+        pred: ndarray,
+        name: str,
+        logistic: bool
+) -> str:
+    """
+
+    Args:
+        ob0: Previous observation.
+        ob1: Current observation.
+        pred: Predicted state based on current observation.
+        name: Name of the model.
+        logistic: True for logistic learning.
+
+    Returns:
+        Message suitable for use in SSE.
+
+    """
+    global observation_q
+
+    # Data object
+    data: dict = {
+        name: {
+            "prev": {
+                "timestamp": str(ob0.timestamp),
+                "open": ob0.open,
+                "close": ob0.close,
+                "high": ob0.high,
+                "low": ob0.low,
+            },
+        }
+    }
+
+    # Data to be formatted to JSON
+    if logistic:
+        pred_val: float = float(pred)
+        direction: float = ob1.open + (1 if pred_val else -1)
+
+        data[name]["current"] = {
+            "timestamp": str(ob1.timestamp),
+            "open": ob1.open,
+            "p_close": direction,
+            "p_high": direction,
+            "p_low": direction
+        }
+    else:
+        data[name]["current"] = {
+            "timestamp": str(ob1.timestamp),
+            "open": ob1.open,
+            "p_close": pred[0][0],
+            "p_high": pred[0][1],
+            "p_low": pred[0][2]
+        }
+
+    return dumps(data)
 
 
 def run(
@@ -52,60 +110,6 @@ def run(
 
     """
 
-    def format_sse_msg(
-            ob0: Observation,
-            ob1: Observation,
-            pred: ndarray,
-    ) -> str:
-        """
-
-        Args:
-            ob0: Previous observation.
-            ob1: Current observation.
-            pred: Predicted state based on current observation.
-
-        Returns:
-            Message suitable for use in SSE.
-
-        """
-        global observation_q
-        nonlocal logistic, name
-
-        # Data object
-        data: dict = {
-            name: {
-                "prev": {
-                    "timestamp": str(ob0.timestamp),
-                    "open": ob0.open,
-                    "close": ob0.close,
-                    "high": ob0.high,
-                    "low": ob0.low,
-                },
-            }
-        }
-
-        # Data to be formatted to JSON
-        if logistic:
-            direction: float = ob1.open + float(pred)
-
-            data[name]["current"] = {
-                "timestamp": str(ob1.timestamp),
-                "open": ob1.open,
-                "p_close": direction,
-                "p_high": direction,
-                "p_low": direction
-            }
-        else:
-            data[name]["current"] = {
-                "timestamp": str(ob1.timestamp),
-                "open": ob1.open,
-                "p_close": pred[0][0],
-                "p_high": pred[0][1],
-                "p_low": pred[0][2]
-            }
-
-        return dumps(data)
-
     # Loop indefinitely & push to queue
     while True:
         # Initial time
@@ -122,16 +126,15 @@ def run(
         # Set back to false
         fed_rate[fed_rate_key] = cur_observation.fed_rate
 
+        cur_observation.apply_sentiment(sentiment)
+
         y_pred = pipeline.predict(
             cur_observation.to_df()
         )
 
-        # Apply the sentiment to the prediction
-        apply_sentiment(y_pred, sentiment, logistic)
-
         # yield the predicted close, high, low to the queue
         q.put_nowait(
-            format_sse_msg(prev_observation, cur_observation, y_pred)
+            format_sse_msg(prev_observation, cur_observation, y_pred, name, logistic)
         )
 
         # Time after execution

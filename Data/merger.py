@@ -38,12 +38,14 @@ def get_data(refresh: bool = False) -> DataFrame:
             load_clean_bitcoin(),
             load_clean_dxy(),
             load_clean_fear_greed(),
-            load_clean_fed_funds()
+            load_clean_fed_funds(),
+            load_clean_sentiment()
         ) if not refresh else (
             clean_bitcoin()[0],
             clean_dxy(),
             clean_fear_greed(),
-            clean_fed_funds()
+            clean_fed_funds(),
+            clean_sentiment()
         )
     )
 

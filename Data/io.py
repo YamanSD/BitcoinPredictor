@@ -73,6 +73,27 @@ def load_bitcoin() -> DataFrame:
     return load_croissant("bitcoin")
 
 
+def load_sentiment() -> DataFrame:
+    """
+        Loads the sentiment of the market from 2017 to 2023 and returns it as a DataFrame.
+
+        Returns:
+            DataFrame containing the training sentiment data.
+
+        """
+    dir_name: str = "sentiment"
+
+    # Path to the Data file
+    dest_path: str = path.join(dir_path, dir_name)
+    cl_path: str = path.join(dest_path, f"data.csv")
+
+    # If we have already downloaded the file, then return it.
+    if path.exists(cl_path):
+        return read_csv(cl_path)
+
+    raise AssertionError("Sentiment data does not exist")
+
+
 def load_dxy() -> DataFrame:
     """
     Loads the DXY (US Dollar Index) data from 2017 to 2023 and returns it as a DataFrame.
@@ -137,7 +158,7 @@ def load_fed_funds() -> DataFrame:
 
 def save_parquet(
         df: DataFrame,
-        folder: Literal['bitcoin', 'dxy', 'fedFunds', 'inflation', 'fearGreed'] = '',
+        folder: Literal['bitcoin', 'dxy', 'fedFunds', 'inflation', 'fearGreed', 'sentiment'] = '',
         file_name: str = None
 ) -> None:
     """

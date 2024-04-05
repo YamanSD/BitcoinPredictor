@@ -3,10 +3,12 @@ from __future__ import annotations
 from concurrent.futures import ThreadPoolExecutor, wait, Future
 from dataclasses import dataclass, asdict
 from datetime import datetime
+from typing import Optional
 
 from numpy import ravel, ndarray
 from pandas import DataFrame
 
+from Sentiment import SentimentResponse
 from .bitcoin import fetch as btc_fetch, KlineResponse
 from .dxy import fetch as dxy_fetch, DxyResponse
 from .fng import fetch as fng_fetch, FngResponse
@@ -40,6 +42,7 @@ class Observation:
     open_dxy: float
     fng: int
     fed_rate: float
+    sentiment: Optional[float]
 
     def _to_def(self) -> DataFrame:
         """
@@ -86,6 +89,15 @@ class Observation:
             )
 
         return df.drop(target_labels, axis=1), df[target_labels]
+
+    def apply_sentiment(self, sentiment: SentimentResponse) -> None:
+        """
+
+        Args:
+            sentiment: To be applied.
+
+        """
+        self.sentiment = sentiment.net_sentiment()
 
 
 def observe(fed_rate: dict) -> tuple[Observation, Observation]:
