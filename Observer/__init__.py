@@ -3,7 +3,6 @@ from __future__ import annotations
 from concurrent.futures import ThreadPoolExecutor, wait, Future
 from dataclasses import dataclass, asdict
 from datetime import datetime
-from typing import Optional
 
 from numpy import ravel, ndarray
 from pandas import DataFrame
@@ -42,7 +41,7 @@ class Observation:
     open_dxy: float
     fng: int
     fed_rate: float
-    sentiment: Optional[float]
+    sentiment: float
 
     def _to_def(self) -> DataFrame:
         """
@@ -137,6 +136,7 @@ def observe(fed_rate: dict) -> tuple[Observation, Observation]:
             **asdict(dxy_res),
             **asdict(fng_res),
             **(asdict(fed_rate_res) if refresh_fed else fed_rate),
+            'sentiment': 0
         }
 
         # Type declarations
