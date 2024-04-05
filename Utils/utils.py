@@ -4,7 +4,7 @@ from functools import reduce
 from threading import Thread
 from time import time, sleep
 from traceback import print_exc
-from typing import Callable, Type, Any
+from typing import Callable, Type, Any, Iterable
 from json import load
 
 
