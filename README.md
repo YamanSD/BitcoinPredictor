@@ -16,7 +16,9 @@ The project aims to predict the price of Bitcoin over 1-minute candlesticks. Due
 
 ## Features
 
-- **Live Price Prediction**: Predicts the close, low, & high aspects of the current 1-minute candlestick.
+- **Live Price Prediction**: Predicts the close, low, & high aspects of the current 1-minute candlestick using three supervised models
+
+  (`linear regression`, `elastic net optimized using grid search`, `logistic regression`) running in parallel.
 - **Web Interface**: Web interface that demonstrates the predictions and the actual values visually.
 - **Multiprocessing**: Runs each model as a separate process to enhance efficiency and serve the live predictions in a timely fashion.
 - **Multithreading**: API requests are ran in separate threads to save time.
