@@ -8,43 +8,36 @@
 ![scikit-learn](https://img.shields.io/badge/scikit--learn-%23F7931E.svg?style=for-the-badge&logo=scikit-learn&logoColor=white)
 ![Tor](https://img.shields.io/badge/Tor-7D4698?style=for-the-badge&logo=Tor-Browser&logoColor=white)
 
-![main](./screenshots/main.png)
+![main](./screenshots/BP0screen0.png)
 
-## Project Overview & Technologies
+## Project Overview
 
-- This project aims to predict the topic of a given news article using Latent Semantic Analysis (LSA) and Latent Dirichlet Allocation (LDA). 
-- It also compares the performance of both algorithms using t-Distributed Stochastic Neighbor Embedding (TSNE) to plot the clusters. 
-- The project leverages the [Newspaper3K library](https://github.com/codelucas/newspaper) to fetch news articles, Flask for the web interface, and [FinBERT](https://huggingface.co/ProsusAI/finbert) for financial sentiment analysis. 
-- To ensure efficiency, multiprocessing is used to run each model as a separate process.
+The project aims to predict the price of Bitcoin over 1-minute candlesticks. Due to the lack of proper hardware, this is accomplished using supervised-learning methods only.
 
 ## Features
 
-- **Topic Prediction**: Predicts the topic of a given news article using LSA and LDA by spitting out predicted keywords.
-- **Web Interface**: Intuitive web interface to interact with the Flask server.
-- **Multiprocessing**: Runs each model as a separate process to enhance efficiency.
-- **Sentiment Analysis**: Uses FinBERT API to predict the sentiment of the news article.
-- **Automatic Data Fetching**: Uses Kaggle's CroissantML format to automatically download and store the data in parquet format.
+- **Live Price Prediction**: Predicts the close, low, & high aspects of the current 1-minute candlestick.
+- **Web Interface**: Web interface that demonstrates the predictions and the actual values visually.
+- **Multiprocessing**: Runs each model as a separate process to enhance efficiency and serve the live predictions in a timely fashion.
+- **Multithreading**: API requests are ran in separate threads to save time.
+- **Automatic Data Fetching**: Uses Kaggle's CroissantML format and other public APIs to automatically download and store the data in parquet format.
+- **Web Scraping**: Utilizes a Socks-5 proxy through a local TOR browser instance to scrape live news from the DuckDuckGo.
+- **Live Sentiment Analysis**: The scraped news articles are fed into [FinBERT](https://huggingface.co/ProsusAI/finbert) to get live sentiment.
+- **Live Data Collection**: Live data is collected from various sources including Binance, CoinStats, & YahooFinanace.
+
+## Data Sources
+
+### Training Data
+
+### Live Data
 
 ## Installation
 
+1. You must have 
 1. Create a `config.json` file in the root directory of the project. The structure of the file must match that of `example_config.json`.
 2. [Optional] Create a virtual python environment and initialize it.
 3. Install the project requirements by running the following command `pip install -r requirements.txt`.
     - Note that this project requires Python 3.11.8 and on some systems you must run `pip3 install -r requirements.txt`.
-
-## t-SNE Results
-
-[Bokeh](https://bokeh.org/) was used to generate the following plots:
-
-- [LSA](lsa.html): 
-
-![lsa](./screenshots/lsa.png)
-
-- [LDA](lda.html): 
-
-![lda](./screenshots/lda.png)
-
-Unsurprisingly, LDA does a better job at separating the articles into clusters.
 
 ## Usage
 
