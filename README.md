@@ -29,9 +29,17 @@ The project aims to predict the price of Bitcoin over 1-minute candlesticks. Due
 
 ## Data Sources
 
+The models require two forms of data:
+
 ### Training Data
+**Used for training and testing the models.**
+Sources include:
+
 
 ### Live Data
+**Used for acquiring the necessary information to predict the targets.**
+Sources include:
+
 
 ## Installation
 
