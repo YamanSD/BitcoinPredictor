@@ -51,6 +51,8 @@ Sources include:
 4. Alpha Vantage
 5. Web Scraping
 
+### These various data sources (live and training) were then combined properly into a single Pandas Dataframe and used/saved.
+
 ## Installation
 
 1. Install the [TOR](https://www.torproject.org/download/) browser or provide alternative proxies in the `config.json`.
