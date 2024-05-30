@@ -12,7 +12,7 @@
 
 ## Project Overview
 
-The project aims to predict the price of Bitcoin over 1-minute candlesticks. Due to the lack of proper hardware, this is accomplished using supervised-learning methods only.
+A primitive predictor for the price of Bitcoin over 1-minute candlesticks. Due to the lack of proper hardware, this is accomplished using supervised-learning methods only.
 
 ## Features
 
@@ -32,41 +32,48 @@ The project aims to predict the price of Bitcoin over 1-minute candlesticks. Due
 The models require two forms of data:
 
 ### Training Data
-**Used for training and testing the models.**
+**Used for training and testing the models. Handled by the Data module.**
 Sources include:
+1. Binance
+2. Yahoo Finance
+3. CoinStats
+4. WallStreet Journal
+5. Macrotrends
+6. Web Scraping
 
 
 ### Live Data
-**Used for acquiring the necessary information to predict the targets.**
+**Used for acquiring the necessary information to predict the targets. Handled by the Observer module.**
 Sources include:
-
+1. Binance
+2. Yahoo Finance
+3. CoinStats
+4. Alpha Vantage
+5. Web Scraping
 
 ## Installation
 
-1. You must have 
-1. Create a `config.json` file in the root directory of the project. The structure of the file must match that of `example_config.json`.
-2. [Optional] Create a virtual python environment and initialize it.
-3. Install the project requirements by running the following command `pip install -r requirements.txt`.
+1. Install the [TOR](https://www.torproject.org/download/) browser or provide alternative proxies in the `config.json`.
+2. Create a `config.json` file in the root directory of the project. The structure of the file must match that of `example_config.json`.
+3. [Optional] Create a virtual python environment and initialize it.
+4. Install the project requirements by running the following command `pip install -r requirements.txt`.
     - Note that this project requires Python 3.11.8 and on some systems you must run `pip3 install -r requirements.txt`.
 
 ## Usage
 
-1. Change into the project directory and start the server by `python .` or `python3 .`
-2. Access the web interface at `http://127.0.0.1:{PORT FROM config.json}`.
+1. Start TOR, establish the connection, and then search at least once in the search bar for anything.
+2. Change into the project directory and start the server by `python .` or `python3 .`
+3. Access the web interface at `http://127.0.0.1:{PORT FROM config.json}`.
 
 ## Examples
 
-- This example uses the following [link](https://www.fxstreet.com/cryptocurrencies/news/top-3-price-prediction-bitcoin-ethereum-ripple-facing-correction-after-etfs-led-rally-202405300755): 
+These screenshots are taken from the latest test run: 
 
-![ex0](./screenshots/ex0.png)
+![s0](./screenshots/BP0screen0.png)
 
-- This example uses the following [link](https://cointelegraph.com/news/bitcoin-etfs-traditional-finance-investments), which blocks the download:
-  
-![ex0](./screenshots/ex1.png)
+![s1](./screenshots/BP0screen1.png)
 
-- This example uses the following [link](https://www.coindesk.com/markets/2024/05/23/bitcoin-drops-below-68k-ether-slumps-in-sudden-crypto-sell-off-as-eth-etf-decision-looms/):
-
-![ex0](./screenshots/ex2.png)
+![s2](./screenshots/BP0screen2.png)
 
 ## License
 
